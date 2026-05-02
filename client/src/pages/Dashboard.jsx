@@ -205,24 +205,25 @@ const Dashboard = () => {
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 'calc(100% - 40px)' }}>
             <span>{statModal.title}</span>
-            {selectedStatRows.length > 0 && (
+            {statModal.data.length > 0 && (
               <Button 
                 type="primary" 
                 icon={<DownloadOutlined />} 
                 onClick={() => {
                   if (statGridRef.current?.api) {
-                    statGridRef.current.api.exportDataAsCsv({
-                      onlySelected: true,
+                    const params = {
                       fileName: `${statModal.title.replace(/\s+/g, '_')}_Export.csv`
-                    });
-                    message.success(`Exported ${selectedStatRows.length} candidates to CSV`);
-                    setSelectedStatRows([]);
-                    statGridRef.current.api.deselectAll();
+                    };
+                    if (selectedStatRows.length > 0) {
+                      params.onlySelected = true;
+                    }
+                    statGridRef.current.api.exportDataAsCsv(params);
+                    message.success(`Exported ${selectedStatRows.length > 0 ? selectedStatRows.length : statModal.data.length} items to CSV`);
                   }
                 }}
                 style={{ background: '#0ea5e9', borderColor: '#0ea5e9', marginRight: '10px' }}
               >
-                Export CSV ({selectedStatRows.length})
+                {selectedStatRows.length > 0 ? `Export Selected (${selectedStatRows.length})` : 'Export All'}
               </Button>
             )}
           </div>

@@ -91,21 +91,63 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
     {
       field: 'skills',
       headerName: 'SKILLS',
-      flex: 1.5,
-      cellRenderer: (p) => (
-        <div className="d-flex flex-wrap gap-1 align-items-center">
-          {(p.value || []).slice(0, 3).map(skill => (
-            <Tag key={skill} color="blue" style={{ fontSize: '10px', borderRadius: '4px', margin: 0 }}>
-              {skill}
-            </Tag>
-          ))}
-          {(p.value || []).length > 3 && (
-            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 600 }}>
-              +{p.value.length - 3}
-            </span>
-          )}
-        </div>
-      )
+      flex: 2,
+      cellRenderer: (p) => {
+        const skills = p.value || [];
+        const visibleSkills = skills.slice(0, 2);
+        const remainingSkills = skills.slice(2);
+
+        return (
+          <div className="d-flex flex-wrap gap-1 align-items-center h-100">
+            {visibleSkills.map(skill => (
+              <Tag key={skill} color="blue" style={{ fontSize: '10px', borderRadius: '4px', margin: 0, fontWeight: 600 }}>
+                {skill}
+              </Tag>
+            ))}
+            {remainingSkills.length > 0 && (
+              <Dropdown
+                trigger={['click']}
+                dropdownRender={() => (
+                  <div style={{ 
+                    background: '#ffffff', 
+                    padding: '12px', 
+                    borderRadius: '12px', 
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                    border: '1px solid #f1f5f9',
+                    maxWidth: 250,
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '6px'
+                  }}>
+                    <div style={{ width: '100%', marginBottom: '8px', borderBottom: '1px solid #f1f5f9', paddingBottom: '4px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b' }}>ALL SKILLS</span>
+                    </div>
+                    {skills.map(s => (
+                      <Tag key={s} color="blue" style={{ borderRadius: '4px', margin: 0, fontWeight: 600 }}>{s}</Tag>
+                    ))}
+                  </div>
+                )}
+              >
+                <Tag 
+                  color="purple" 
+                  style={{ 
+                    fontSize: '10px', 
+                    borderRadius: '4px', 
+                    margin: 0, 
+                    fontWeight: 700, 
+                    cursor: 'pointer',
+                    background: '#f5f3ff',
+                    border: '1px solid #ddd6fe',
+                    color: '#7c3aed'
+                  }}
+                >
+                  +{remainingSkills.length} skills
+                </Tag>
+              </Dropdown>
+            )}
+          </div>
+        );
+      }
     },
     { field: 'role', headerName: 'ROLE', flex: 1.5 },
     {

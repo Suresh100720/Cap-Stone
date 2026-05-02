@@ -128,9 +128,10 @@ const CVSummariser = () => {
     } finally { setLoading(false); }
   };
 
-  const handleAsk = async () => {
-    if (!question.trim() || !uploadedKey || asking) return;
-    const q = question;
+  const handleAsk = async (qOverride) => {
+    const q = qOverride || question;
+    if (!q.trim() || !uploadedKey || asking) return;
+    
     setQuestion(''); 
     const newMessages = [...messages, { role: 'user', content: q }];
     setMessages(newMessages); 
@@ -291,6 +292,38 @@ const CVSummariser = () => {
         {/* Input Area */}
         <div style={{ padding: '0 24px 40px', width: '100%', background: '#fafafa' }}>
             <div style={{ maxWidth: 880, margin: '0 auto', position: 'relative' }}>
+                
+                {/* Suggested Questions */}
+                {uploadedKey && !asking && messages.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16, animation: 'fadeIn 0.6s ease' }}>
+                    {[
+                      "What are the core technical strengths?",
+                      "Any experience with Cloud/AWS?",
+                      "Identify potential red flags.",
+                      "Is this candidate fit for a Senior role?",
+                      "Summarize leadership experience."
+                    ].map((q, idx) => (
+                      <Button 
+                        key={idx}
+                        onClick={() => handleAsk(q)}
+                        style={{ 
+                          height: 34, 
+                          borderRadius: 10, 
+                          fontSize: 12, 
+                          fontWeight: 600, 
+                          color: '#7c3aed', 
+                          background: '#ffffff',
+                          border: '1px solid #ddd6fe',
+                          boxShadow: '0 2px 6px rgba(124, 58, 237, 0.05)'
+                        }}
+                        icon={<Sparkles size={13} />}
+                      >
+                        {q}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+
                 <div style={{ 
                     background: '#ffffff', 
                     borderRadius: 28, 

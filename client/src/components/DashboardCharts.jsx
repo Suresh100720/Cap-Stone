@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+  BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from "recharts";
 import { Tag } from "antd";
 
@@ -67,26 +67,37 @@ const DashboardCharts = ({ candidateRadarData = [], jobPieData = [], totalCandid
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 24 }}>
       
-      {/* Chart 1: Candidate Talent Radar */}
+      {/* Chart 1: Candidate Talent Distribution (Simple Bar Chart) */}
       <div style={cardStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
         <ChartLabel title="Pipeline Analytics" badge={{ label: "Talent Pool", value: totalCandidates, color: "purple" }} />
         <div style={{ padding: '0px' }}>
             <h4 style={{ color: '#1e293b', fontSize: '15px', fontWeight: 700, margin: '0 0 16px 0' }}>Talent Distribution</h4>
             <ResponsiveContainer width="100%" height={280}>
-            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={candidateRadarData}>
-                <PolarGrid stroke="#f1f5f9" />
-                <PolarAngleAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 'auto']} stroke="#f1f5f9" tick={{ fill: '#cbd5e1', fontSize: 9 }} />
-                <Radar
-                name="Candidates"
-                dataKey="value"
-                stroke="#7c3aed"
-                fill="#7c3aed"
-                fillOpacity={0.4}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" wrapperStyle={{ paddingTop: 10, fontSize: 11 }} />
-            </RadarChart>
+                <BarChart data={candidateRadarData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} 
+                    />
+                    <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fontSize: 10, fill: '#cbd5e1' }} 
+                    />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+                    <Bar 
+                        dataKey="value" 
+                        fill="#7c3aed" 
+                        radius={[6, 6, 0, 0]} 
+                        barSize={40}
+                    >
+                        {candidateRadarData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={PALETTE[index % PALETTE.length]} />
+                        ))}
+                    </Bar>
+                </BarChart>
             </ResponsiveContainer>
         </div>
       </div>

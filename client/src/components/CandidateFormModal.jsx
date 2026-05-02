@@ -152,32 +152,35 @@ const CandidateFormModal = ({ open, onCancel, onFinish, editingId, form }) => {
         }
       }}
     >
-      <div style={{ marginBottom: '24px' }}>
-        <Text type="secondary" style={{ display: 'block', marginBottom: '12px', fontSize: '12px', fontWeight: 700 }}>AI RESUME PARSER (BETA)</Text>
-        <Dragger 
-          accept=".txt,.md,.pdf,image/*" 
-          beforeUpload={handleResumeUpload} 
-          showUploadList={false}
-          style={{ background: '#f8fafc', border: '2px dashed #e2e8f0', borderRadius: '16px' }}
-        >
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined style={{ color: '#7c3aed' }} />
-          </p>
-          <p className="ant-upload-text">Upload Resume (PDF, Image, or Text)</p>
-          {parsing && (
-            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-              <Text style={{ color: '#7c3aed', fontWeight: 600 }}>
-                <RocketOutlined spin /> {parsingStatus}
-              </Text>
-              <Text type="secondary" style={{ fontSize: '11px' }}>
-                {parsingStatus.includes("OCR") ? "OCR can take 20-30 seconds..." : "This usually takes a few seconds..."}
-              </Text>
-            </div>
-          )}
-        </Dragger>
-      </div>
-
-      <Divider style={{ margin: '24px 0' }}>Candidate Information</Divider>
+      {!editingId && (
+        <>
+          <div style={{ marginBottom: '24px' }}>
+            <Text type="secondary" style={{ display: 'block', marginBottom: '12px', fontSize: '12px', fontWeight: 700 }}>AI RESUME PARSER (BETA)</Text>
+            <Dragger 
+              accept=".txt,.md,.pdf,image/*" 
+              beforeUpload={handleResumeUpload} 
+              showUploadList={false}
+              style={{ background: '#f8fafc', border: '2px dashed #e2e8f0', borderRadius: '16px' }}
+            >
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined style={{ color: '#7c3aed' }} />
+              </p>
+              <p className="ant-upload-text">Upload Resume (PDF, Image, or Text)</p>
+              {parsing && (
+                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                  <Text style={{ color: '#7c3aed', fontWeight: 600 }}>
+                    <RocketOutlined spin /> {parsingStatus}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: '11px' }}>
+                    {parsingStatus.includes("OCR") ? "OCR can take 20-30 seconds..." : "This usually takes a few seconds..."}
+                  </Text>
+                </div>
+              )}
+            </Dragger>
+          </div>
+          <Divider style={{ margin: '24px 0' }}>Candidate Information</Divider>
+        </>
+      )}
 
       <Form form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
