@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "recruitement-ai-demo",
+  "pages_build_output_dir": "./client/dist",
+  "compatibility_date": "2024-04-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "r2_buckets": [
+    {
+      "binding": "CV_STORAGE",
+      "bucket_name": "recruitement"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  }
+}

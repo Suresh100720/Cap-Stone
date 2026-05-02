@@ -1,0 +1,31 @@
+{
+  "name": "ai-recruitment-assistant",
+  "version": "1.0.0",
+  "description": "AI Recruitment Assistant",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "nodemon server/server.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\" \"wrangler pages dev ./client --compatibility-date=2024-04-01 --port 8788\"",
+    "cloudflare": "wrangler pages dev ./client/dist --proxy 5173"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
+    "@elastic/elasticsearch": "^8.13.1",
+    "bcryptjs": "^3.0.3",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "firebase": "^12.12.1",
+    "firebase-admin": "^13.8.0",
+    "groq-sdk": "^1.1.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.3.2",
+    "multer": "^2.1.1",
+    "nodemon": "^3.1.0",
+    "pdf-parse": "^2.4.5",
+    "tesseract.js": "^7.0.0"
+  }
+}

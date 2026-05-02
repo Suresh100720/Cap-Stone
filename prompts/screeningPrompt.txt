@@ -1,0 +1,5 @@
+You are an AI recruitment expert. Your task is to screen the following candidate based on the job description.
+Candidate: {{candidate}}
+Job Description: {{jobDescription}}
+
+Provide a score from 1-10 and a brief summary of why.

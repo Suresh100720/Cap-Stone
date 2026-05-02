@@ -1,0 +1,7 @@
+John Doe
+Email: john.doe@example.com
+Phone: +1 555 0123 4567
+Role: Senior Full Stack Developer
+Skills: React, Node.js, Python, AWS, MongoDB, TypeScript, Tailwind CSS
+Experience: 8 years of building scalable web applications.
+Education: BS in Computer Science from MIT.

@@ -1,0 +1,2 @@
+Expand the following recruitment search query into a more comprehensive Elasticsearch query using synonyms and related technologies.
+Query: {{query}}
