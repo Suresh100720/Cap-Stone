@@ -5,7 +5,6 @@ import MainLayout from './components/layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Candidates from './pages/Candidates';
 import Search from './pages/Search';
-import AIChat from './pages/AIChat';
 import CVSummariser from './pages/CVSummariser';
 import Jobs from './pages/Jobs';
 import Login from './pages/Login';
@@ -41,7 +40,6 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/candidates" element={<Candidates />} />
                 <Route path="/search" element={<Search />} />
-                <Route path="/chat" element={<AIChat />} />
                 <Route path="/summarizer" element={<CVSummariser />} />
                 <Route path="/jd-generator" element={<JDGenerator />} />
                 <Route path="/jobs" element={<Jobs />} />
