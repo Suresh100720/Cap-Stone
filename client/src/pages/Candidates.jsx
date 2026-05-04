@@ -110,7 +110,7 @@ const Candidates = () => {
   if (loading && candidates.length === 0) return <LoadingSpinner />;
 
   return (
-    <div className="bg-[#f4f7fe] min-h-[calc(100vh-64px)] p-10">
+    <div className="bg-white min-h-[calc(100vh-64px)] p-10">
       {/* Top Header Row */}
       <div className="d-flex justify-content-between align-items-center mb-8">
         <div className="d-flex gap-3 align-items-center">

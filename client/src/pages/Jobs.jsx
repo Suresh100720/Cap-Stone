@@ -171,7 +171,7 @@ const Jobs = () => {
   };
 
   return (
-    <div style={{ padding: '0 0 40px 0' }}>
+    <div style={{ padding: '0 0 40px 0', background: 'white', minHeight: 'calc(100vh - 64px)' }}>
       <div style={{ 
         background: 'white', 
         padding: '16px 24px', 
