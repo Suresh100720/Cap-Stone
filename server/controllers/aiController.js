@@ -111,7 +111,7 @@ exports.parseCV = async (req, res) => {
     const prompt = `You are a professional resume parser. Extract the following information from the resume text in JSON format:
     - name: Full name of the candidate
     - email: Email address
-    - role: The primary job title or specialization (e.g. "Frontend Developer")
+    - role: The primary job title or specialization. MUST be a short, concise professional title (e.g. "Software Engineer", "Data Scientist"). DO NOT include sentences, summaries, or long descriptions.
     - skills: An array of technical skills (e.g. ["Python", "React"])
     - experience: Estimated years of experience as a number
     - phone: Contact phone number

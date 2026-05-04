@@ -19,11 +19,11 @@ const Navbar = ({ collapsed, setCollapsed }) => {
   const getPageTitle = (path) => {
     switch (path) {
       case '/dashboard': return 'Analytics Dashboard';
-      case '/candidates': return 'Talent Pipeline';
-      case '/jobs': return 'Active Roles';
+      case '/candidates': return 'All candidates';
+      case '/jobs': return 'ALL JOBS';
       case '/search': return 'Semantic Search';
-      case '/summarizer': return 'AI Intelligence';
-      case '/jd-generator': return 'Job Architect';
+      case '/summarizer': return 'AI CV Summarizer';
+      case '/jd-generator': return 'JobDescription Generator';
       default: return 'Admin Console';
     }
   };

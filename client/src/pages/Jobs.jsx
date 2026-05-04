@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Button, Modal, Form, Input, Select, Space,
+  Button, Modal, Form, Input, Select, Space, Flex,
   Popconfirm, message, Alert, Spin, Typography, InputNumber, Row, Col, Tag, Card
 } from 'antd';
 import {
@@ -171,63 +171,72 @@ const Jobs = () => {
   };
 
   return (
-    <div style={{ padding: '0 0 40px 0', background: 'white', minHeight: 'calc(100vh - 64px)' }}>
+    <div style={{ padding: '0 40px 40px 40px', background: 'white', minHeight: 'calc(100vh - 64px)' }}>
+      {/* Sticky Header Row */}
       <div style={{ 
+        position: 'sticky', 
+        top: 0, 
+        zIndex: 1000, 
         background: 'white', 
-        padding: '16px 24px', 
-        borderRadius: '20px', 
+        padding: '24px 0',
         marginBottom: '32px',
-        border: '1px solid #f1f5f9',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        boxShadow: '0 10px 30px rgba(0,0,0,0.05)'
+        borderBottom: '1px solid #f1f5f9'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <Space size="large">
-            <Text style={{ fontWeight: 600, color: '#64748b' }}>
-              <RocketOutlined style={{ color: '#7c3aed', marginRight: '8px' }} /> 
-              Smart Matching:
-            </Text>
-            <Select
-              placeholder="Select candidate to find matching jobs"
-              style={{ width: 300 }}
-              allowClear
-              onChange={(val) => setMatchingCandidate(candidates.find(c => c._id === val))}
-            >
-              {candidates.map(c => (
-                <Select.Option key={c._id} value={c._id}>
-                  {c.name} ({c.role || 'No Role'})
-                </Select.Option>
-              ))}
-            </Select>
-          </Space>
-          {matchingCandidate && (
-            <Tag color="purple" style={{ borderRadius: '6px', padding: '4px 12px' }}>
-              Matching for {matchingCandidate.name}
-            </Tag>
-          )}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          gap: '24px',
+          background: '#f8fafc',
+          padding: '12px 24px',
+          borderRadius: '16px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <Space size="large" style={{ width: '100%' }}>
+              <Text style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap' }}>
+                <RocketOutlined style={{ color: '#7c3aed', marginRight: '8px' }} /> 
+                Smart Match:
+              </Text>
+              <Select
+                placeholder="Select candidate to find matching jobs"
+                style={{ width: '400px' }}
+                allowClear
+                onChange={(val) => setMatchingCandidate(candidates.find(c => c._id === val))}
+              >
+                {candidates.map(c => (
+                  <Select.Option key={c._id} value={c._id}>
+                    {c.name} ({c.role || 'No Role'})
+                  </Select.Option>
+                ))}
+              </Select>
+              {matchingCandidate && (
+                <Tag color="purple" style={{ borderRadius: '6px', padding: '4px 12px', fontWeight: 600, border: 'none', background: '#ede9fe', color: '#7c3aed' }}>
+                  Showing matches for {matchingCandidate.name}
+                </Tag>
+              )}
+            </Space>
+          </div>
+
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            onClick={() => { setEditingId(null); jobForm.resetFields(); setIsModalOpen(true); }}
+            style={{
+              background: '#7c3aed',
+              border: 'none',
+              height: '46px',
+              borderRadius: '10px',
+              fontWeight: 700,
+              padding: '0 24px',
+              boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)'
+            }}
+          >
+            Create New Job
+          </Button>
         </div>
-        
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => { setEditingId(null); jobForm.resetFields(); setIsModalOpen(true); }}
-          style={{
-            background: '#7c3aed',
-            border: 'none',
-            height: '42px',
-            borderRadius: '10px',
-            fontWeight: 600,
-            padding: '0 20px',
-            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.2)'
-          }}
-        >
-          Create New Job
-        </Button>
       </div>
 
       {error && <Alert message="Error" description={error} type="error" showIcon closable style={{ borderRadius: '12px', marginBottom: '24px' }} />}
@@ -239,128 +248,76 @@ const Jobs = () => {
       ) : (
         <Row gutter={[24, 24]}>
           {Array.isArray(filteredJobs) && filteredJobs.length > 0 ? filteredJobs.map((job, index) => {
-            const isClosed = job.status === 'Closed';
+            const getStatusScheme = (status, idx) => {
+              const schemes = {
+                'Open': [
+                  { bg: '#f3f0ff', accent: '#7c3aed', border: '#e9e2ff' }, // Purple
+                  { bg: '#f0f9ff', accent: '#0ea5e9', border: '#e0f2fe' }, // Blue
+                  { bg: '#f0fdf4', accent: '#10b981', border: '#dcfce7' }, // Green
+                ],
+                'Closed': { bg: '#fffbeb', accent: '#f59e0b', border: '#fef3c7' }, // Yellow/Orange tint
+                'Actively Hiring': { bg: '#f0f9ff', accent: '#0ea5e9', border: '#e0f2fe' }, // Blue
+                'Urgently Hiring': { bg: '#fff1f2', accent: '#f43f5e', border: '#ffe4e6' }, // Red/Pink
+              };
 
-            // Define colors based on index or status to match the "tinted" look
-            const colorSchemes = [
-              { bg: '#f3f0ff', accent: '#7c3aed', border: '#e9e2ff' }, // Purple
-              { bg: '#f0f9ff', accent: '#0ea5e9', border: '#e0f2fe' }, // Blue
-              { bg: '#f0fdf4', accent: '#10b981', border: '#dcfce7' }, // Green
-              { bg: '#fffbeb', accent: '#f59e0b', border: '#fef3c7' }  // Yellow
-            ];
+              if (status === 'Open') {
+                return schemes['Open'][idx % schemes['Open'].length];
+              }
+              return schemes[status] || { bg: '#f8fafc', accent: '#64748b', border: '#f1f5f9' };
+            };
 
-            const scheme = isClosed ? { bg: '#fff1f2', accent: '#f43f5e', border: '#ffe4e6' } : colorSchemes[index % colorSchemes.length];
+            const scheme = getStatusScheme(job.status, index);
 
             return (
               <Col xs={24} md={12} lg={8} key={job._id}>
                 <Card
-                  bordered={false}
-                  className="job-card-premium"
+                  hoverable
+                  bordered={true}
                   style={{
-                    background: scheme.bg,
+                    background: 'transparent',
                     borderRadius: '24px',
-                    border: `1px solid ${scheme.border}`,
+                    border: '1px solid #f1f5f9',
                     overflow: 'hidden',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-                    cursor: 'pointer',
-                    position: 'relative',
-                    '--hover-border': scheme.accent
                   }}
                   styles={{ body: { padding: '24px' } }}
+                  actions={[
+                    <Space style={{ fontWeight: 600, color: '#64748b' }} onClick={(e) => { e.stopPropagation(); handleEdit(job); }}>
+                      <EditOutlined key="edit" /> Edit
+                    </Space>,
+                    <Popconfirm title="Delete this job?" onConfirm={() => handleDelete(job._id)} okButtonProps={{ danger: true }} onPopupClick={e => e.stopPropagation()}>
+                      <Space style={{ color: '#f43f5e', fontWeight: 600 }} onClick={e => e.stopPropagation()}>
+                        <DeleteOutlined key="delete" /> Delete
+                      </Space>
+                    </Popconfirm>,
+                    <Space style={{ fontWeight: 600, color: '#7c3aed' }} onClick={(e) => { e.stopPropagation(); setApplyModal({ visible: true, job }); }}>
+                      <SendOutlined key="apply" /> Apply
+                    </Space>
+                  ]}
                 >
-                  <style>{`
-                    .job-card-premium {
-                      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                    }
-                    .job-card-premium:hover {
-                      transform: translateY(-8px) !important;
-                      box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
-                      border-color: var(--hover-border) !important;
-                    }
-                  `}</style>
-                  {/* Status & Date */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <Text style={{
-                      color: scheme.accent,
-                      fontWeight: 700,
-                      fontSize: '12px',
-                      textTransform: 'capitalize'
-                    }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <Tag color={job.status === 'Open' ? 'green' : job.status === 'Closed' ? 'red' : 'orange'} style={{ borderRadius: '6px', fontWeight: 700 }}>
                       {job.status}
-                    </Text>
-                    <Text style={{ color: '#94a3b8', fontSize: '11px', fontWeight: 600 }}>
+                    </Tag>
+                    <Text type="secondary" style={{ fontSize: '11px', fontWeight: 600 }}>
                       {new Date(job.createdAt || Date.now()).toLocaleDateString()}
                     </Text>
                   </div>
 
-                  {/* Title & Icon */}
-                  <div style={{ display: 'flex', gap: '14px', marginBottom: '20px' }}>
-                    <div style={{ color: '#64748b', fontSize: '18px', paddingTop: '4px' }}>
-                      <SolutionOutlined />
+                  <Title level={4} style={{ marginBottom: '12px', fontWeight: 800, color: '#1e293b' }}>{job.title}</Title>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                    <Text type="secondary" style={{ fontSize: '13px', fontWeight: 600 }}>
+                      <BlockOutlined style={{ marginRight: '8px' }} />
+                      {job.department}
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: '13px', fontWeight: 600 }}>
+                      <EnvironmentOutlined style={{ marginRight: '8px' }} />
+                      {job.location}
+                    </Text>
+                    <div style={{ marginTop: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.6)', borderRadius: '100px', display: 'inline-block', alignSelf: 'flex-start' }}>
+                      <Text strong style={{ fontSize: '13px' }}>{job.openings} Openings</Text>
                     </div>
-                    <div>
-                      <Title level={4} style={{ margin: 0, fontWeight: 700, color: '#1e293b', fontSize: '18px' }}>{job.title}</Title>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                        <BlockOutlined style={{ fontSize: '12px', color: '#94a3b8' }} />
-                        <Text style={{ color: '#64748b', fontSize: '12px', fontWeight: 600 }}>{job.department}</Text>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Location if exists */}
-                  {job.location && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                      <EnvironmentOutlined style={{ fontSize: '12px', color: '#94a3b8' }} />
-                      <Text style={{ color: '#64748b', fontSize: '12px' }}>{job.location}</Text>
-                    </div>
-                  )}
-
-                  {/* Skills Tags */}
-                  <div style={{ marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {(job.skills || []).map(skill => (
-                      <Tag key={skill} color="blue" style={{ borderRadius: '4px', fontSize: '11px', margin: 0, background: 'rgba(124, 58, 237, 0.05)', color: '#7c3aed', border: '1px solid rgba(124, 58, 237, 0.1)' }}>
-                        {skill}
-                      </Tag>
-                    ))}
-                  </div>
-
-                  {/* Openings Pill */}
-                  <div style={{
-                    padding: '12px 20px',
-                    background: 'rgba(255,255,255,0.7)',
-                    borderRadius: '100px',
-                    marginBottom: '28px',
-                    display: 'inline-block',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
-                  }}>
-                    <Text style={{ color: '#1e293b', fontWeight: 800, fontSize: '13px' }}>{job.openings} Openings</Text>
-                  </div>
-
-                  {/* Actions Row */}
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    paddingTop: '20px',
-                    borderTop: '1px solid rgba(0,0,0,0.04)'
-                  }}>
-                    <Space
-                      style={{ cursor: 'pointer', color: '#64748b', fontSize: '13px', fontWeight: 600 }}
-                      onClick={(e) => { e.stopPropagation(); handleEdit(job); }}
-                    >
-                      <EditOutlined /> Edit
-                    </Space>
-                    <Popconfirm title="Delete this job?" onConfirm={() => handleDelete(job._id)} okButtonProps={{ danger: true }} onPopupClick={e => e.stopPropagation()}>
-                      <Space style={{ cursor: 'pointer', color: '#f43f5e', fontSize: '13px', fontWeight: 600 }} onClick={e => e.stopPropagation()}>
-                        <DeleteOutlined /> Delete
-                      </Space>
-                    </Popconfirm>
-                    <Space
-                      style={{ cursor: 'pointer', color: '#64748b', fontSize: '13px', fontWeight: 600 }}
-                      onClick={(e) => { e.stopPropagation(); setApplyModal({ visible: true, job }); }}
-                    >
-                      <SendOutlined /> Apply
-                    </Space>
                   </div>
                 </Card>
               </Col>

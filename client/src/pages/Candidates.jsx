@@ -71,7 +71,7 @@ const Candidates = () => {
   };
 
   const handleEdit = (candidate) => {
-    setEditingId(candidate._id);
+    setEditingId(candidate._id || candidate.id);
     form.setFieldsValue(candidate);
     setIsModalOpen(true);
   };
@@ -96,7 +96,7 @@ const Candidates = () => {
       title: `Delete ${selectedRows.length} candidates?`,
       onOk: async () => {
         try {
-          await Promise.all(selectedRows.map(row => axiosInstance.delete(`/candidates/${row._id}`)));
+          await Promise.all(selectedRows.map(row => axiosInstance.delete(`/candidates/${row._id || row.id}`)));
           message.success('Bulk delete successful');
           fetchData();
           setSelectedRows([]);
@@ -110,75 +110,80 @@ const Candidates = () => {
   if (loading && candidates.length === 0) return <LoadingSpinner />;
 
   return (
-    <div className="bg-white min-h-[calc(100vh-64px)] p-10">
-      {/* Top Header Row */}
-      <div className="d-flex justify-content-between align-items-center mb-8">
-        <div className="d-flex gap-3 align-items-center">
-          {/* Search Input on the left */}
-          <Input
-            placeholder="Search by name, email, or status..."
-            value={searchTerm}
-            className="rounded-xl h-11 border-none shadow-sm w-96 px-4"
-            suffix={
-              <Button 
-                type="text" 
-                icon={<SearchOutlined />} 
-                onClick={() => handleSearch(searchTerm)}
-                className="text-[#3b82f6] hover:text-[#2563eb] p-0"
-              />
+    <div style={{ padding: '40px', background: 'white', minHeight: 'calc(100vh - 64px)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+        <Space size="middle" wrap>
+          <Input.Search
+            placeholder="Search by name, skills, email..."
+            enterButton={
+              <Button type="primary" style={{ height: '42px', borderRadius: '0 10px 10px 0', background: '#7c3aed', border: 'none', fontWeight: 600 }}>
+                SEARCH
+              </Button>
             }
+            onSearch={handleSearch}
+            style={{ width: 400 }}
+            size="large"
+            value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
               if (!e.target.value) fetchData();
             }}
-            onPressEnter={() => handleSearch(searchTerm)}
             allowClear
           />
-          
           {selectedRows.length > 0 && (
-            <div className="d-flex gap-2">
-              <Button 
-                icon={<DownloadOutlined />} 
-                onClick={() => gridRef.current.api.exportDataAsCsv()}
-                className="rounded-xl border-[#e2e8f0] text-[#64748b]"
-              >
-                Export
-              </Button>
-              <Button 
-                danger 
-                icon={<DeleteFilled />} 
-                onClick={handleBulkDelete}
-                className="rounded-xl"
-              >
-                Delete ({selectedRows.length})
-              </Button>
-            </div>
+            <span style={{ fontSize: '11px', fontWeight: 700, background: "#ede9fe", color: "#6366f1", padding: "4px 12px", borderRadius: '20px', border: '1px solid #ddd6fe' }}>
+              {selectedRows.length} SELECTED
+            </span>
           )}
-        </div>
+        </Space>
 
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => { setEditingId(null); form.resetFields(); setIsModalOpen(true); }}
-          className="bg-[#7c3aed] border-none rounded-xl h-11 font-bold px-8 shadow-lg shadow-[#7c3aed33]"
-        >
-          Add Candidate
-        </Button>
+        <Space size="middle" wrap>
+          {selectedRows.length > 0 && (
+            <Space>
+              <Button
+                icon={<DownloadOutlined />}
+                onClick={() => gridRef.current.api.exportDataAsCsv({ onlySelected: true })}
+                style={{ borderRadius: '8px', height: '42px', fontWeight: 600, color: '#16a34a', borderColor: '#16a34a' }}
+              >
+                Export ({selectedRows.length})
+              </Button>
+              <Button
+                danger
+                icon={<DeleteFilled />}
+                onClick={handleBulkDelete}
+                style={{ borderRadius: '8px', height: '42px', fontWeight: 600 }}
+              >
+                Delete Selected
+              </Button>
+            </Space>
+          )}
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => { setEditingId(null); form.resetFields(); setIsModalOpen(true); }}
+            style={{
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              border: 'none',
+              borderRadius: '10px',
+              height: '42px',
+              fontWeight: 700,
+              padding: '0 24px',
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)'
+            }}
+          >
+            Add Candidate
+          </Button>
+        </Space>
       </div>
 
-      {/* White Table Container */}
-      <div className="bg-white rounded-[24px] p-6 shadow-sm border border-[#f1f5f9]">
-        <div className="row">
-          <div className="col-12">
-            <CandidateTable
-              ref={gridRef}
-              rowData={candidates}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onSelectionChanged={() => setSelectedRows(gridRef.current.api.getSelectedRows())}
-            />
-          </div>
-        </div>
+      <div style={{ background: 'white', borderRadius: '24px', padding: '24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+        <CandidateTable
+          ref={gridRef}
+          rowData={candidates}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onSelectionChanged={(event) => setSelectedRows(event.api.getSelectedRows())}
+        />
       </div>
 
       <CandidateFormModal

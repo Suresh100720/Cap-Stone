@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Select, Button, Typography, Upload, message, Divider, Tag, InputNumber } from 'antd';
+import { Modal, Form, Input, Select, Button, Typography, Upload, message, Divider, Tag, InputNumber, Row, Col } from 'antd';
 import { InboxOutlined, RocketOutlined } from '@ant-design/icons';
 import axiosInstance from '../api/axiosInstance';
 
@@ -116,8 +116,8 @@ const CandidateFormModal = ({ open, onCancel, onFinish, editingId, form }) => {
   const processAIParse = async (text) => {
     setParsing(true);
     try {
-      // Using Cloudflare Function for CV parsing
-      const res = await axiosInstance.post('/cv/parse', { text });
+      // Using Express Backend for CV parsing
+      const res = await axiosInstance.post('/ai/parse-cv', { text });
       const { name, email, role, skills, experience, phone } = res.data;
 
       
@@ -160,76 +160,105 @@ const CandidateFormModal = ({ open, onCancel, onFinish, editingId, form }) => {
               accept=".txt,.md,.pdf,image/*" 
               beforeUpload={handleResumeUpload} 
               showUploadList={false}
-              style={{ background: '#f8fafc', border: '2px dashed #e2e8f0', borderRadius: '16px' }}
+              disabled={parsing}
+              style={{ 
+                background: parsing ? '#f1f5f9' : '#f8fafc', 
+                border: parsing ? '2px solid #7c3aed' : '2px dashed #e2e8f0', 
+                borderRadius: '16px',
+                height: '160px',
+                transition: 'all 0.3s ease'
+              }}
             >
-              <p className="ant-upload-drag-icon">
-                <InboxOutlined style={{ color: '#7c3aed' }} />
-              </p>
-              <p className="ant-upload-text">Upload Resume (PDF, Image, or Text)</p>
-              {parsing && (
-                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                  <Text style={{ color: '#7c3aed', fontWeight: 600 }}>
-                    <RocketOutlined spin /> {parsingStatus}
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: '11px' }}>
-                    {parsingStatus.includes("OCR") ? "OCR can take 20-30 seconds..." : "This usually takes a few seconds..."}
-                  </Text>
-                </div>
-              )}
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                {parsing ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', animation: 'fadeIn 0.3s ease' }}>
+                    <RocketOutlined spin style={{ fontSize: '32px', color: '#7c3aed' }} />
+                    <Text style={{ color: '#7c3aed', fontWeight: 600, fontSize: '14px' }}>
+                      {parsingStatus}
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: '11px' }}>
+                      {parsingStatus.includes("OCR") ? "This may take up to 30 seconds..." : "Processing with AI..."}
+                    </Text>
+                  </div>
+                ) : (
+                  <div style={{ animation: 'fadeIn 0.3s ease' }}>
+                    <p className="ant-upload-drag-icon" style={{ marginBottom: '8px' }}>
+                      <InboxOutlined style={{ color: '#7c3aed', fontSize: '32px' }} />
+                    </p>
+                    <p className="ant-upload-text" style={{ margin: 0, fontWeight: 600, color: '#1e293b' }}>Upload Resume to Auto-Fill</p>
+                    <p className="ant-upload-hint" style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>Support for PDF, Image, or Text</p>
+                  </div>
+                )}
+              </div>
             </Dragger>
           </div>
-          <Divider style={{ margin: '24px 0' }}>Candidate Information</Divider>
+          <Divider style={{ margin: '24px 0', borderColor: '#f1f5f9' }}>Candidate Information</Divider>
         </>
       )}
 
       <Form form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <Form.Item
-            name="name"
-            label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>FULL NAME <span style={{ color: '#ef4444' }}>*</span></Text>}
-            rules={[{ required: true, message: 'Name is required' }]}
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item
+              name="name"
+              label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', display: 'block' }}>FULL NAME <span style={{ color: '#ef4444' }}>*</span></Text>}
+              rules={[{ required: true, message: 'Name is required' }]}
+            >
+              <Input placeholder="John Doe" style={{ height: 42, borderRadius: '10px' }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="email"
+              label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', display: 'block' }}>EMAIL ADDRESS <span style={{ color: '#ef4444' }}>*</span></Text>}
+              rules={[{ required: true, type: 'email', message: 'Valid email is required' }]}
+            >
+              <Input placeholder="john@example.com" style={{ height: 42, borderRadius: '10px' }} />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item
+              name="phone"
+              label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', display: 'block' }}>PHONE NUMBER</Text>}
+            >
+              <Input placeholder="+1 234 567 890" style={{ height: 42, borderRadius: '10px' }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="role" label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', display: 'block' }}>SPECIALIZATION</Text>}>
+              <Select placeholder="Select role" style={{ height: 42, width: '100%' }}>
+                {roleOptions.map(opt => <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item name="experience" label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', display: 'block' }}>EXPERIENCE (YEARS)</Text>}>
+              <InputNumber min={0} max={50} style={{ width: '100%', height: 42, borderRadius: '10px', paddingTop: '5px' }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="status" label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', display: 'block' }}>HIRING STATUS</Text>} initialValue="Active">
+              <Select style={{ height: 42, width: '100%' }}>
+                {statusOptions.map(opt => <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>)}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Form.Item name="skills" label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', display: 'block' }}>KEY SKILLS (AUTO-DETECTED)</Text>}>
+          <Select 
+            mode="tags" 
+            placeholder="Select or type skills" 
+            style={{ width: '100%' }} 
+            tokenSeparators={[',']}
+            maxTagCount="responsive"
           >
-            <Input placeholder="John Doe" style={{ height: 42, borderRadius: '10px' }} />
-          </Form.Item>
-
-          <Form.Item
-            name="email"
-            label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>EMAIL ADDRESS <span style={{ color: '#ef4444' }}>*</span></Text>}
-            rules={[{ required: true, type: 'email', message: 'Valid email is required' }]}
-          >
-            <Input placeholder="john@example.com" style={{ height: 42, borderRadius: '10px' }} />
-          </Form.Item>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <Form.Item
-            name="phone"
-            label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>PHONE NUMBER</Text>}
-          >
-            <Input placeholder="+1 234 567 890" style={{ height: 42, borderRadius: '10px' }} />
-          </Form.Item>
-
-          <Form.Item name="role" label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>SPECIALIZATION</Text>}>
-            <Select placeholder="Select role" style={{ height: 42 }}>
-              {roleOptions.map(opt => <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>)}
-            </Select>
-          </Form.Item>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <Form.Item name="experience" label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>EXPERIENCE (YEARS)</Text>}>
-            <InputNumber min={0} max={50} style={{ width: '100%', height: 42, borderRadius: '10px', paddingTop: '5px' }} />
-          </Form.Item>
-
-          <Form.Item name="status" label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>HIRING STATUS</Text>} initialValue="Active">
-            <Select style={{ height: 42 }}>
-              {statusOptions.map(opt => <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>)}
-            </Select>
-          </Form.Item>
-        </div>
-
-        <Form.Item name="skills" label={<Text style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>KEY SKILLS (AUTO-DETECTED)</Text>}>
-          <Select mode="tags" placeholder="Select or type skills" style={{ width: '100%' }} tokenSeparators={[',']}>
             {skillOptions.map(skill => <Select.Option key={skill} value={skill}>{skill}</Select.Option>)}
           </Select>
         </Form.Item>
@@ -256,6 +285,12 @@ const CandidateFormModal = ({ open, onCancel, onFinish, editingId, form }) => {
           </Button>
         </div>
       </Form>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </Modal>
   );
 };

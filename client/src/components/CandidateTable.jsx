@@ -1,313 +1,338 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { Tag, Button, Dropdown, Avatar, Space, message } from 'antd';
-import { EditOutlined, DeleteOutlined, MoreOutlined, DownloadOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { Tag, Button, Dropdown, Avatar, Space, Tooltip, Typography, message, Modal } from 'antd';
+import { 
+  EditOutlined, 
+  DeleteOutlined, 
+  MoreOutlined, 
+  FilePdfOutlined, 
+  PlusOutlined, 
+  FileExcelOutlined 
+} from '@ant-design/icons';
+
+const { Title } = Typography;
+const { confirm } = Modal;
+
+const LS_KEY = "aggridCandidateColumnState";
+const AVATAR_COLORS = ["#6366f1", "#8b5cf6", "#0ea5e9", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6"];
+const avatarColor = (name = "") => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length] || "#94a3b8";
+
+/* ── Custom Cell Renderers ── */
+const CandidateCellRenderer = ({ value }) => (
+  <div className="flex items-center gap-2 h-full">
+    <div
+      className="rounded-full flex items-center justify-center font-bold text-white shadow-sm shrink-0"
+      style={{ width: 28, height: 28, background: avatarColor(value), fontSize: 10 }}
+    >
+      {value?.charAt(0).toUpperCase()}
+    </div>
+    <span className="font-bold text-slate-800 truncate" style={{ fontSize: 13 }}>{value}</span>
+  </div>
+);
+
+const RoleCellRenderer = ({ value }) => (
+  <div className="flex items-center h-full">
+    <span className="text-slate-500 font-semibold" style={{ fontSize: 13 }}>
+      {value || "N/A"}
+    </span>
+  </div>
+);
+
+const ResumeCellRenderer = ({ value }) => (
+  <div className="flex items-center h-full">
+    {value ? (
+      <Tooltip title="View Resume">
+        <a 
+          href={`http://127.0.0.1:5000/uploads/${value}`} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-indigo-500 no-underline flex items-center gap-1.5 hover:text-indigo-600"
+        >
+          <FilePdfOutlined style={{ fontSize: 16 }} />
+          <span style={{ fontSize: 13, fontWeight: 500 }}>View</span>
+        </a>
+      </Tooltip>
+    ) : (
+      <span className="text-slate-300" style={{ fontSize: 13 }}>—</span>
+    )}
+  </div>
+);
+
+const StatusBadge = ({ status }) => {
+  const colors = {
+    Active: 'green',
+    Inactive: 'default',
+    Hired: 'green',
+    Interview: 'purple',
+    Screening: 'orange',
+    Rejected: 'red',
+    Applied: 'blue'
+  };
+  return (
+    <Tag color={colors[status] || 'blue'} style={{ borderRadius: '4px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase' }}>
+      {status || 'Active'}
+    </Tag>
+  );
+};
 
 const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChanged, type = 'candidate', isStatTable = false }, ref) => {
-
-  const getInitials = (name) => {
-    if (!name) return '?';
-    return name.charAt(0).toUpperCase();
-  };
+  const [selectedRows, setSelectedRows] = useState([]);
+  const gridRef = useRef();
 
   const isJobType = type === 'job';
 
-  // Standard Column Definitions to match the image exactly
-  let colDefs = isJobType ? [
-    {
-      field: 'title',
-      headerName: 'JOB TITLE',
-      flex: 1.5,
-      fontWeight: 700
-    },
-    { field: 'department', headerName: 'DEPARTMENT', flex: 1 },
-    { field: 'location', headerName: 'LOCATION', flex: 1 },
-    {
-      field: 'status',
-      headerName: 'STATUS',
-      flex: 1,
-      cellRenderer: (p) => {
-        const colors = { Open: 'success', Closed: 'error', 'On Hold': 'warning' };
-        return <Tag color={colors[p.value] || 'blue'} style={{ borderRadius: '6px', fontWeight: 600 }}>{p.value}</Tag>;
+  /* ── Restore Column State ── */
+  const onGridReady = useCallback((params) => {
+    gridRef.current = params;
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved && params.api) {
+      try {
+        const columnState = JSON.parse(saved);
+        params.api.applyColumnState({ state: columnState, applyOrder: true });
+      } catch (err) {
+        console.error("Failed to restore column state:", err);
       }
-    },
-    {
-      headerName: 'ACTIONS',
-      field: 'actions',
-      width: 60,
-      pinned: 'right',
-      lockPinned: true,
-      headerClass: 'ag-center-aligned-header',
-      cellClass: 'd-flex align-items-center justify-content-center',
-      cellRenderer: (params) => {
-        const items = [
-          { key: 'edit', label: 'Edit', icon: <EditOutlined />, onClick: () => onEdit(params.data) },
-          { key: 'delete', label: 'Delete', danger: true, icon: <DeleteOutlined />, onClick: () => onDelete(params.data._id) }
-        ];
-        return (
-          <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-            <Button type="text" icon={<MoreOutlined style={{ color: '#94a3b8' }} />} onClick={(e) => e.stopPropagation()} />
-          </Dropdown>
-        );
-      }
+    } else if (params.api) {
+      params.api.sizeColumnsToFit();
     }
-  ] : [
-    {
-      headerName: '',
-      field: 'checkbox',
-      width: 50,
-      checkboxSelection: true,
-      headerCheckboxSelection: true,
-      pinned: 'left',
-      lockPinned: true,
-      suppressMenu: true,
-      suppressMovable: true,
-    },
-    {
-      field: 'name',
-      headerName: 'NAME',
-      flex: 1.5,
-      cellRenderer: (p) => (
-        <Space className="d-flex align-items-center h-100">
-          <Avatar
-            size={28}
-            style={{
-              backgroundColor: p.node.rowIndex % 2 === 0 ? '#7c3aed' : '#ec4899',
-              fontSize: '11px',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            {getInitials(p.value)}
-          </Avatar>
-          <span style={{ fontWeight: 500, color: '#1e293b', marginLeft: '8px' }}>{p.value}</span>
-        </Space>
-      )
-    },
-    { field: 'email', headerName: 'EMAIL', flex: 1.8 },
-    { field: 'phone', headerName: 'PHONE', flex: 1.2 },
-    {
-      field: 'skills',
-      headerName: 'SKILLS',
-      flex: 2,
-      cellRenderer: (p) => {
-        const skills = p.value || [];
-        const visibleSkills = skills.slice(0, 2);
-        const remainingSkills = skills.slice(2);
+  }, []);
 
-        return (
-          <div className="d-flex flex-wrap gap-1 align-items-center h-100">
-            {visibleSkills.map(skill => (
-              <Tag key={skill} color="blue" style={{ fontSize: '10px', borderRadius: '4px', margin: 0, fontWeight: 600 }}>
-                {skill}
-              </Tag>
-            ))}
-            {remainingSkills.length > 0 && (
-              <Dropdown
-                trigger={['click']}
-                dropdownRender={() => (
-                  <div style={{ 
-                    background: '#ffffff', 
-                    padding: '12px', 
-                    borderRadius: '12px', 
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                    border: '1px solid #f1f5f9',
-                    maxWidth: 250,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '6px'
-                  }}>
-                    <div style={{ width: '100%', marginBottom: '8px', borderBottom: '1px solid #f1f5f9', paddingBottom: '4px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b' }}>ALL SKILLS</span>
+  /* ── Save Column State ── */
+  const onColumnChanged = useCallback(() => {
+    if (!gridRef.current?.api) return;
+    const columnState = gridRef.current.api.getColumnState();
+    localStorage.setItem(LS_KEY, JSON.stringify(columnState));
+  }, []);
+
+  /* ── Actions Cell Renderer ── */
+  const ActionsCellRenderer = useCallback(({ data }) => {
+    const items = [
+      {
+        key: "edit",
+        icon: <EditOutlined style={{ color: "#6366f1" }} />,
+        label: <span style={{ color: "#6366f1", fontWeight: 600 }}>Edit</span>,
+        onClick: () => onEdit && onEdit(data),
+      },
+      { type: "divider" },
+      {
+        key: "delete",
+        icon: <DeleteOutlined />,
+        label: "Delete",
+        danger: true,
+        onClick: () => onDelete(data._id || data.id),
+      },
+    ];
+
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight">
+          <Button
+            type="text"
+            shape="circle"
+            icon={<MoreOutlined style={{ fontSize: 18, color: "#64748b" }} />}
+          />
+        </Dropdown>
+      </div>
+    );
+  }, [onEdit, onDelete]);
+
+  const colDefs = useMemo(() => {
+    if (isJobType) {
+      return [
+        { field: 'title', headerName: 'Job Title', flex: 1, cellStyle: { fontWeight: 600 } },
+        { field: 'department', flex: 1 },
+        { field: 'location', flex: 1 },
+        {
+          field: 'status',
+          flex: 1,
+          cellRenderer: (p) => <StatusBadge status={p.value} />
+        }
+      ];
+    }
+
+    let cols = [
+      {
+        headerName: '',
+        field: 'checkbox',
+        width: 50,
+        checkboxSelection: true,
+        headerCheckboxSelection: true,
+        pinned: "left",
+        lockPinned: true,
+        suppressMenu: true,
+        cellClass: "flex items-center justify-center"
+      },
+      {
+        field: "name",
+        headerName: "Name",
+        cellRenderer: CandidateCellRenderer,
+        minWidth: 160,
+        flex: 1.5,
+      },
+      {
+        field: "email",
+        headerName: "Email",
+        minWidth: 200,
+        flex: 1.5,
+        sortable: true,
+      },
+      {
+        field: "phone",
+        headerName: "Contact",
+        minWidth: 140,
+        flex: 1,
+      },
+      {
+        field: "role",
+        headerName: "Role",
+        cellRenderer: RoleCellRenderer,
+        minWidth: 150,
+        flex: 1,
+      },
+      {
+        field: "skills",
+        headerName: "Skills",
+        minWidth: 220,
+        flex: 1.5,
+        cellRenderer: (p) => {
+          const skills = p.data.skills || [];
+          if (skills.length === 0) return <span style={{ color: '#cbd5e1', fontSize: 13 }}>—</span>;
+          
+          const displaySkills = skills.slice(0, 3);
+          const extraCount = skills.length - 3;
+
+          return (
+            <div className="flex items-center gap-1 flex-wrap h-full">
+              {displaySkills.map(s => (
+                <Tag key={s} color="blue" style={{ fontSize: '10px', borderRadius: '4px', margin: 0, fontWeight: 600 }}>{s}</Tag>
+              ))}
+              {extraCount > 0 && (
+                <Dropdown
+                  trigger={['click']}
+                  placement="bottom"
+                  dropdownRender={() => (
+                    <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[280px] flex flex-wrap gap-1.5">
+                      <div className="w-full mb-1 pb-1 border-b border-slate-100">
+                        <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-tight">Full Skill Set</span>
+                      </div>
+                      {skills.map(s => (
+                        <Tag key={s} color="blue" className="rounded-md font-semibold m-0">{s}</Tag>
+                      ))}
                     </div>
-                    {skills.map(s => (
-                      <Tag key={s} color="blue" style={{ borderRadius: '4px', margin: 0, fontWeight: 600 }}>{s}</Tag>
-                    ))}
-                  </div>
-                )}
-              >
-                <Tag 
-                  color="purple" 
-                  style={{ 
-                    fontSize: '10px', 
-                    borderRadius: '4px', 
-                    margin: 0, 
-                    fontWeight: 700, 
-                    cursor: 'pointer',
-                    background: '#f5f3ff',
-                    border: '1px solid #ddd6fe',
-                    color: '#7c3aed'
-                  }}
+                  )}
                 >
-                  +{remainingSkills.length} skills
-                </Tag>
-              </Dropdown>
-            )}
-          </div>
-        );
-      }
-    },
-    { field: 'role', headerName: 'ROLE', flex: 1.5 },
-    {
-      field: 'status',
-      headerName: 'STATUS',
-      flex: 1.2,
-      cellRenderer: (p) => {
-        const colors = {
-          Applied: 'blue',
-          Interview: 'purple',
-          Rejected: 'error',
-          Hired: 'success',
-          Screening: 'warning'
-        };
-        const status = p.value || 'Applied';
-        const color = colors[status] || 'blue';
-        return (
-          <Tag
-            color={color}
-            style={{
-              borderRadius: '20px',
-              fontWeight: 600,
-              fontSize: '12px',
-              padding: '0 12px'
-            }}
-          >
-            {status}
-          </Tag>
-        );
-      }
-    },
-    {
-      headerName: 'ACTIONS',
-      field: 'actions',
-      width: 100,
-      pinned: 'right',
-      lockPinned: true,
-      headerClass: 'ag-center-aligned-header',
-      cellClass: 'd-flex align-items-center justify-content-center',
-      cellRenderer: (params) => {
-        const items = [
-          { key: 'edit', label: 'Edit', icon: <EditOutlined />, onClick: () => onEdit(params.data) },
-          { key: 'delete', label: 'Delete', danger: true, icon: <DeleteOutlined />, onClick: () => onDelete(params.data._id) }
-        ];
-        return (
-          <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-            <Button type="text" icon={<MoreOutlined style={{ color: '#94a3b8' }} />} onClick={(e) => e.stopPropagation()} />
-          </Dropdown>
-        );
-      }
-    }
-  ];
+                  <Tag 
+                    className="cursor-pointer hover:bg-indigo-100 transition-colors" 
+                    color="indigo" 
+                    style={{ fontSize: '10px', borderRadius: '4px', margin: 0, fontWeight: 800, background: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' }}
+                  >
+                    +{extraCount}
+                  </Tag>
+                </Dropdown>
+              )}
+            </div>
+          );
+        }
+      },
+      {
+        field: "status",
+        headerName: "Status",
+        cellRenderer: (p) => <div className="flex items-center h-full"><StatusBadge status={p.value} /></div>,
+        minWidth: 120,
+        flex: 1,
+      },
+      {
+        headerName: "Actions",
+        cellRenderer: ActionsCellRenderer,
+        width: 90,
+        pinned: "right",
+        lockPinned: true,
+        sortable: false,
+        resizable: false,
+        suppressHeaderMenuButton: true,
+      },
+    ];
 
-  // Handle isStatTable: keep checkbox for export, but remove management actions
-  if (isStatTable) {
-    colDefs = colDefs.filter(col => col.field !== 'actions');
-  }
+    if (isStatTable) {
+      cols = cols.filter(col => col.headerName !== "Actions");
+    }
+
+    return cols;
+  }, [isJobType, isStatTable, ActionsCellRenderer]);
+
+  const handleGridSelectionChanged = useCallback((event) => {
+    const selected = event.api.getSelectedRows();
+    setSelectedRows(selected);
+    if (onSelectionChanged) onSelectionChanged(event);
+  }, [onSelectionChanged]);
 
   return (
-    <div className="ag-theme-alpine w-100">
-      <AgGridReact
-        ref={ref}
-        rowData={rowData}
-        columnDefs={colDefs}
-        defaultColDef={{
-          cellStyle: { textAlign: 'left', display: 'flex', alignItems: 'center' },
-          headerClass: 'ag-left-aligned-header',
-          sortable: true,
-          filter: false,
-          resizable: true,
-          suppressMenu: true,
-          suppressHeaderMenuButton: true,
-          minWidth: 50
-        }}
-        pagination={true}
-        paginationPageSize={15}
-        domLayout='autoHeight'
-        rowHeight={56}
-        headerHeight={48}
-        onGridReady={(params) => params.api.sizeColumnsToFit()}
-        onSelectionChanged={onSelectionChanged}
-        rowSelection='multiple'
-        suppressRowClickSelection={true}
-        sideBar={{
-          toolPanels: [
-            {
-              id: 'columns',
-              labelDefault: 'Columns',
-              labelKey: 'columns',
-              iconKey: 'columns',
-              toolPanel: 'agColumnsToolPanel',
-              toolPanelParams: {
-                suppressRowGroups: true,
-                suppressValues: true,
-                suppressPivots: true,
-                suppressPivotMode: true
+    <div className="w-full">
+      <div className="ag-theme-alpine w-full">
+        <AgGridReact
+          ref={ref}
+          rowData={rowData}
+          columnDefs={colDefs}
+          defaultColDef={{
+            cellStyle: { textAlign: 'left', display: 'flex', alignItems: 'center' },
+            sortable: true,
+            filter: false,
+            resizable: true,
+            suppressMenu: true,
+            suppressHeaderMenuButton: true
+          }}
+          pagination={true}
+          paginationPageSize={10}
+          paginationPageSizeSelector={[5, 10, 20, 50]}
+          domLayout='autoHeight'
+          onGridReady={onGridReady}
+          onColumnMoved={onColumnChanged}
+          onColumnResized={onColumnChanged}
+          onColumnVisible={onColumnChanged}
+          onSelectionChanged={handleGridSelectionChanged}
+          rowSelection='multiple'
+          rowMultiSelectWithClick={false}
+          suppressRowClickSelection={true}
+          rowHeight={52}
+          headerHeight={48}
+          suppressRowClickSelection={true}
+          sideBar={{
+            toolPanels: [
+              {
+                id: 'columns',
+                labelDefault: 'Columns',
+                labelKey: 'columns',
+                iconKey: 'columns',
+                toolPanel: 'agColumnsToolPanel',
+                toolPanelParams: {
+                  suppressRowGroups: true,
+                  suppressValues: true,
+                  suppressPivots: true,
+                  suppressPivotMode: true
+                }
               }
-            }
-          ]
-        }}
-      />
+            ]
+          }}
+        />
+      </div>
+
       <style>{`
-        .ag-theme-alpine {
-          --ag-header-background-color: #f8fafc;
-          --ag-header-foreground-color: #64748b;
-          --ag-border-color: #f1f5f9;
-          --ag-row-hover-color: #f8fafc;
-          --ag-selected-row-background-color: #f1f5f9;
-          --ag-font-size: 13px;
-          --ag-font-family: 'Plus Jakarta Sans', sans-serif;
-          --ag-header-column-separator-display: block;
-          --ag-header-column-separator-height: 40%;
-          --ag-header-column-separator-color: #e2e8f0;
-        }
         .ag-header-cell-label {
-          font-weight: 800 !important;
-          font-size: 11px !important;
-          letter-spacing: 0.5px;
-          color: #64748b;
-        }
-        .ag-theme-alpine .ag-root-wrapper {
-          border: none !important;
-        }
-        .ag-theme-alpine .ag-header {
-          border-bottom: 1px solid #e2e8f0 !important;
-        }
-        .ag-theme-alpine .ag-row {
-          border-bottom: 1px solid #f1f5f9 !important;
-        }
-        .ag-left-aligned-header .ag-header-cell-label {
           justify-content: flex-start !important;
         }
-        .ag-center-aligned-header .ag-header-cell-label {
-          justify-content: center !important;
-          padding-left: 0 !important;
-          padding-right: 0 !important;
-        }
-        .ag-center-aligned-header .ag-header-select-all {
-          margin-right: 0 !important;
-          display: flex !important;
-          justify-content: center !important;
-          width: 100% !important;
-        }
-        .ag-header-cell-comp-wrapper {
-          justify-content: center !important;
-        }
-        /* Pagination Styling */
-        .ag-paging-panel {
-          height: 48px !important;
-          border-top: 1px solid #f1f5f9 !important;
-          color: #64748b !important;
+        .ag-header-cell-text {
+          color: black !important;
           font-weight: 600 !important;
-          font-size: 12px !important;
-          padding: 0 24px !important;
+          font-size: 13px !important;
         }
-        .ag-paging-button {
-          color: #94a3b8 !important;
+        .ag-cell {
+          border-right: 1px solid #f1f5f9 !important;
         }
-        .ag-paging-button:hover {
-          color: #7c3aed !important;
+        .ag-row {
+          border-bottom: 1px solid #f1f5f9 !important;
+        }
+        .ag-selection-checkbox {
+          margin-right: 12px !important;
         }
       `}</style>
     </div>

@@ -27,6 +27,21 @@ exports.indexCandidate = async (candidate) => {
     }
 };
 
+exports.removeCandidateFromES = async (id) => {
+    try {
+        await esClient.delete({
+            index: INDEX_NAME,
+            id: id.toString()
+        });
+        await esClient.indices.refresh({ index: INDEX_NAME });
+    } catch (error) {
+        // 404 is fine, it means it's already gone from ES
+        if (error.meta?.statusCode !== 404) {
+            console.error("ES Deletion Error:", error);
+        }
+    }
+};
+
 exports.searchCandidates = async (queryText) => {
     try {
         const result = await esClient.search({
@@ -42,7 +57,7 @@ exports.searchCandidates = async (queryText) => {
             }
         });
         return result.hits.hits.map(hit => ({
-            id: hit._id,
+            _id: hit._id,
             ...hit._source,
             score: hit._score
         }));

@@ -93,16 +93,16 @@ const Login = () => {
             <Form.Item name="email" rules={[{ required: true, type: 'email', message: 'Valid email required' }]}>
               <Input
                 prefix={<MailOutlined style={{ color: '#7c3aed', marginRight: '12px' }} />}
-                placeholder="Agent Email"
-                style={{ height: '54px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: '#f1f5f9' }}
+                placeholder="Email Address"
+                style={{ height: '54px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: 'white' }}
               />
             </Form.Item>
 
             <Form.Item name="password" rules={[{ required: true, message: 'Password required' }]}>
               <Input.Password
                 prefix={<LockOutlined style={{ color: '#7c3aed', marginRight: '12px' }} />}
-                placeholder="Security Key"
-                style={{ height: '54px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: '#f1f5f9' }}
+                placeholder="Password"
+                style={{ height: '54px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: 'white' }}
               />
             </Form.Item>
 
@@ -135,6 +135,14 @@ const Login = () => {
           </div>
         </div>
       </div>
+      <style>{`
+        input::placeholder {
+          color: white !important;
+        }
+        .ant-input-password-icon {
+          color: rgba(255, 255, 255, 0.4) !important;
+        }
+      `}</style>
     </div>
   );
 };

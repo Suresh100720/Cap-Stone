@@ -17,8 +17,8 @@ import axios from 'axios';
 const { TextArea } = Input;
 
 const CF_API = {
-  UPLOAD: '/api/cv/upload',
-  ASK: '/api/cv/ask'
+  UPLOAD: '/api/ai/upload-cv',
+  ASK: '/api/ai/ask-cv'
 };
 
 const extractTextFromFile = async (file) => {

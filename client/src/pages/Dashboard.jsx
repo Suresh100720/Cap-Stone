@@ -205,27 +205,51 @@ const Dashboard = () => {
         title={
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 'calc(100% - 40px)' }}>
             <span>{statModal.title}</span>
-            {statModal.data.length > 0 && (
-              <Button 
-                type="primary" 
-                icon={<DownloadOutlined />} 
-                onClick={() => {
-                  if (statGridRef.current?.api) {
-                    const params = {
-                      fileName: `${statModal.title.replace(/\s+/g, '_')}_Export.csv`
-                    };
-                    if (selectedStatRows.length > 0) {
-                      params.onlySelected = true;
-                    }
-                    statGridRef.current.api.exportDataAsCsv(params);
-                    message.success(`Exported ${selectedStatRows.length > 0 ? selectedStatRows.length : statModal.data.length} items to CSV`);
-                  }
-                }}
-                style={{ background: '#0ea5e9', borderColor: '#0ea5e9', marginRight: '10px' }}
-              >
-                {selectedStatRows.length > 0 ? `Export Selected (${selectedStatRows.length})` : 'Export All'}
-              </Button>
-            )}
+            <Space>
+              {selectedStatRows.length > 0 && (
+                <>
+                  <Button 
+                    type="primary" 
+                    icon={<DownloadOutlined />} 
+                    onClick={() => {
+                      if (statGridRef.current?.api) {
+                        statGridRef.current.api.exportDataAsCsv({
+                          onlySelected: true,
+                          fileName: `${statModal.title.replace(/\s+/g, '_')}_Selected.csv`
+                        });
+                        message.success(`Exported ${selectedStatRows.length} items to CSV`);
+                      }
+                    }}
+                    style={{ background: '#16a34a', borderColor: '#16a34a' }}
+                  >
+                    Export ({selectedStatRows.length})
+                  </Button>
+                  <Button 
+                    danger 
+                    icon={<DeleteFilled />} 
+                    onClick={() => {
+                      Modal.confirm({
+                        title: `Delete ${selectedStatRows.length} candidates?`,
+                        content: 'This action cannot be undone.',
+                        onOk: async () => {
+                          try {
+                            await Promise.all(selectedStatRows.map(row => axiosInstance.delete(`/candidates/${row._id || row.id}`)));
+                            message.success('Selected items deleted');
+                            fetchData();
+                            setStatModal(prev => ({ ...prev, visible: false }));
+                            setSelectedStatRows([]);
+                          } catch (err) {
+                            message.error('Failed to delete some items');
+                          }
+                        }
+                      });
+                    }}
+                  >
+                    Delete Selected
+                  </Button>
+                </>
+              )}
+            </Space>
           </div>
         }
         open={statModal.visible}

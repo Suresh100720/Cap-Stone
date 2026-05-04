@@ -1,6 +1,6 @@
 const Candidate = require('../models/Candidate');
 const { enrichCV } = require('../services/aiService');
-const { indexCandidate } = require('../services/esService');
+const { indexCandidate, removeCandidateFromES } = require('../services/esService');
 
 exports.createCandidate = async (req, res) => {
     try {
@@ -81,6 +81,11 @@ exports.updateCandidate = async (req, res) => {
 exports.deleteCandidate = async (req, res) => {
     try {
         await Candidate.findByIdAndDelete(req.params.id);
+        try {
+            await removeCandidateFromES(req.params.id);
+        } catch (esErr) {
+            console.warn("Failed to remove candidate from ES, but deleted from DB.");
+        }
         res.json({ message: 'Candidate deleted' });
     } catch (err) {
         res.status(500).json({ error: err.message });
