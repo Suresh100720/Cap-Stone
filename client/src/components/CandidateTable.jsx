@@ -1,6 +1,6 @@
 import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { Tag, Button, Dropdown, Avatar, Space, Tooltip, Typography, message, Modal } from 'antd';
+import { Tag, Button, Dropdown, Avatar, Space, Tooltip, Typography, message, Modal, Popconfirm } from 'antd';
 import { 
   EditOutlined, 
   DeleteOutlined, 
@@ -11,7 +11,6 @@ import {
 } from '@ant-design/icons';
 
 const { Title } = Typography;
-const { confirm } = Modal;
 
 const LS_KEY = "aggridCandidateColumnState";
 const AVATAR_COLORS = ["#6366f1", "#8b5cf6", "#0ea5e9", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6"];
@@ -38,35 +37,21 @@ const RoleCellRenderer = ({ value }) => (
   </div>
 );
 
-const ResumeCellRenderer = ({ value }) => (
-  <div className="flex items-center h-full">
-    {value ? (
-      <Tooltip title="View Resume">
-        <a 
-          href={`http://127.0.0.1:5000/uploads/${value}`} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-indigo-500 no-underline flex items-center gap-1.5 hover:text-indigo-600"
-        >
-          <FilePdfOutlined style={{ fontSize: 16 }} />
-          <span style={{ fontSize: 13, fontWeight: 500 }}>View</span>
-        </a>
-      </Tooltip>
-    ) : (
-      <span className="text-slate-300" style={{ fontSize: 13 }}>—</span>
-    )}
-  </div>
-);
-
 const StatusBadge = ({ status }) => {
   const colors = {
+    // Candidate Statuses
     Active: 'green',
     Inactive: 'default',
     Hired: 'green',
     Interview: 'purple',
     Screening: 'orange',
     Rejected: 'red',
-    Applied: 'blue'
+    Applied: 'blue',
+    // Job Statuses
+    Open: 'green',
+    Closed: 'red',
+    'Actively Hiring': 'blue',
+    'On Hold': 'orange'
   };
   return (
     <Tag color={colors[status] || 'blue'} style={{ borderRadius: '4px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase' }}>
@@ -106,22 +91,27 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
 
   /* ── Actions Cell Renderer ── */
   const ActionsCellRenderer = useCallback(({ data }) => {
-    const items = [
-      {
+    // Only show Edit if NOT in a stat table and NOT in jobs table
+    const showEdit = !isStatTable && !isJobType;
+
+    const items = [];
+    if (showEdit) {
+      items.push({
         key: "edit",
         icon: <EditOutlined style={{ color: "#6366f1" }} />,
         label: <span style={{ color: "#6366f1", fontWeight: 600 }}>Edit</span>,
         onClick: () => onEdit && onEdit(data),
-      },
-      { type: "divider" },
-      {
-        key: "delete",
-        icon: <DeleteOutlined />,
-        label: "Delete",
-        danger: true,
-        onClick: () => onDelete(data._id || data.id),
-      },
-    ];
+      });
+      items.push({ type: "divider" });
+    }
+    
+    items.push({
+      key: "delete",
+      icon: <DeleteOutlined />,
+      label: "Delete",
+      danger: true,
+      onClick: () => onDelete(data._id || data.id),
+    });
 
     return (
       <div className="flex items-center justify-center h-full">
@@ -134,34 +124,49 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
         </Dropdown>
       </div>
     );
-  }, [onEdit, onDelete]);
+  }, [onEdit, onDelete, isStatTable, isJobType]);
 
   const colDefs = useMemo(() => {
+    const checkboxCol = {
+      headerName: '',
+      field: 'checkbox',
+      width: 50,
+      checkboxSelection: true,
+      headerCheckboxSelection: true,
+      pinned: "left",
+      lockPinned: true,
+      suppressMenu: true,
+      cellClass: "flex items-center justify-center"
+    };
+
+    const actionsCol = {
+      headerName: "Actions",
+      cellRenderer: ActionsCellRenderer,
+      width: 90,
+      pinned: "right",
+      lockPinned: true,
+      sortable: false,
+      resizable: false,
+      suppressHeaderMenuButton: true,
+    };
+
     if (isJobType) {
       return [
-        { field: 'title', headerName: 'Job Title', flex: 1, cellStyle: { fontWeight: 600 } },
+        checkboxCol,
+        { field: 'title', headerName: 'Job Title', flex: 1.5, cellStyle: { fontWeight: 600 } },
         { field: 'department', flex: 1 },
         { field: 'location', flex: 1 },
         {
           field: 'status',
           flex: 1,
           cellRenderer: (p) => <StatusBadge status={p.value} />
-        }
+        },
+        actionsCol
       ];
     }
 
     let cols = [
-      {
-        headerName: '',
-        field: 'checkbox',
-        width: 50,
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        pinned: "left",
-        lockPinned: true,
-        suppressMenu: true,
-        cellClass: "flex items-center justify-center"
-      },
+      checkboxCol,
       {
         field: "name",
         headerName: "Name",
@@ -197,7 +202,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
         cellRenderer: (p) => {
           const skills = p.data.skills || [];
           if (skills.length === 0) return <span style={{ color: '#cbd5e1', fontSize: 13 }}>—</span>;
-          
+
           const displaySkills = skills.slice(0, 3);
           const extraCount = skills.length - 3;
 
@@ -221,9 +226,9 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
                     </div>
                   )}
                 >
-                  <Tag 
-                    className="cursor-pointer hover:bg-indigo-100 transition-colors" 
-                    color="indigo" 
+                  <Tag
+                    className="cursor-pointer hover:bg-indigo-100 transition-colors"
+                    color="indigo"
                     style={{ fontSize: '10px', borderRadius: '4px', margin: 0, fontWeight: 800, background: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' }}
                   >
                     +{extraCount}
@@ -241,24 +246,11 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
         minWidth: 120,
         flex: 1,
       },
-      {
-        headerName: "Actions",
-        cellRenderer: ActionsCellRenderer,
-        width: 90,
-        pinned: "right",
-        lockPinned: true,
-        sortable: false,
-        resizable: false,
-        suppressHeaderMenuButton: true,
-      },
+      actionsCol,
     ];
 
-    if (isStatTable) {
-      cols = cols.filter(col => col.headerName !== "Actions");
-    }
-
     return cols;
-  }, [isJobType, isStatTable, ActionsCellRenderer]);
+  }, [isJobType, ActionsCellRenderer]);
 
   const handleGridSelectionChanged = useCallback((event) => {
     const selected = event.api.getSelectedRows();
@@ -295,7 +287,6 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
           suppressRowClickSelection={true}
           rowHeight={52}
           headerHeight={48}
-          suppressRowClickSelection={true}
           sideBar={{
             toolPanels: [
               {
