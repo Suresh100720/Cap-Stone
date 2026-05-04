@@ -8,7 +8,9 @@
     "server": "nodemon server/server.js",
     "client": "npm run dev --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\" \"wrangler pages dev ./client --compatibility-date=2024-04-01 --port 8788\"",
-    "cloudflare": "wrangler pages dev ./client/dist --proxy 5173"
+    "cloudflare": "wrangler pages dev ./client/dist --proxy 5173",
+    "build": "npm run build --prefix client",
+    "deploy": "npm run build --prefix client && wrangler pages deploy ./client/dist"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

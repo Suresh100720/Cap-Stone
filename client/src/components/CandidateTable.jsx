@@ -1,13 +1,13 @@
 import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { Tag, Button, Dropdown, Avatar, Space, Tooltip, Typography, message, Modal, Popconfirm } from 'antd';
-import { 
-  EditOutlined, 
-  DeleteOutlined, 
-  MoreOutlined, 
-  FilePdfOutlined, 
-  PlusOutlined, 
-  FileExcelOutlined 
+import {
+  EditOutlined,
+  DeleteOutlined,
+  MoreOutlined,
+  FilePdfOutlined,
+  PlusOutlined,
+  FileExcelOutlined
 } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -104,7 +104,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
       });
       items.push({ type: "divider" });
     }
-    
+
     items.push({
       key: "delete",
       icon: <DeleteOutlined />,
@@ -135,7 +135,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
       headerCheckboxSelection: true,
       pinned: "left",
       lockPinned: true,
-      suppressMenu: true,
+      suppressHeaderMenuButton: true,
       cellClass: "flex items-center justify-center"
     };
 
@@ -195,10 +195,10 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
         flex: 1,
       },
       {
-        field: "skills",
         headerName: "Skills",
         minWidth: 220,
         flex: 1.5,
+        valueFormatter: (p) => (p.value || []).join(', '),
         cellRenderer: (p) => {
           const skills = p.data.skills || [];
           if (skills.length === 0) return <span style={{ color: '#cbd5e1', fontSize: 13 }}>—</span>;
@@ -260,7 +260,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
 
   return (
     <div className="w-full">
-      <div className="ag-theme-alpine w-full">
+      <div className="w-full">
         <AgGridReact
           ref={ref}
           rowData={rowData}
@@ -306,26 +306,6 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
           }}
         />
       </div>
-
-      <style>{`
-        .ag-header-cell-label {
-          justify-content: flex-start !important;
-        }
-        .ag-header-cell-text {
-          color: black !important;
-          font-weight: 600 !important;
-          font-size: 13px !important;
-        }
-        .ag-cell {
-          border-right: 1px solid #f1f5f9 !important;
-        }
-        .ag-row {
-          border-bottom: 1px solid #f1f5f9 !important;
-        }
-        .ag-selection-checkbox {
-          margin-right: 12px !important;
-        }
-      `}</style>
     </div>
   );
 });

@@ -11,7 +11,7 @@ exports.chat = async (req, res) => {
         if (!candidate) return res.status(404).json({ message: 'Candidate not found' });
 
         const aiResponse = await getChatResponse(candidate.chatHistory, message);
-        
+
         candidate.chatHistory.push({ role: 'user', content: message });
         candidate.chatHistory.push({ role: 'ai', content: aiResponse });
         await candidate.save();
@@ -34,7 +34,7 @@ exports.expand = async (req, res) => {
 
 exports.generateJD = async (req, res) => {
     const { title, experience, department, workMode, skills, requirements } = req.body;
-    
+
     const prompt = `You are an expert HR and recruitment architect. Generate a highly professional, structured Job Description in JSON format.
     Include these keys: "responsibilities" (array of 5 strings), "requirements_list" (array of 5 strings), "description" (short paragraph).
     Role: ${title}
@@ -66,10 +66,10 @@ exports.uploadCV = async (req, res) => {
     const { text } = req.body;
     const file = req.file;
     if (!text) return res.status(400).send("No text provided");
-    
+
     const key = `cv_${Date.now()}`;
     cvCache.set(key, text);
-    
+
     res.json({ key, message: "File uploaded and processed" });
 };
 
@@ -126,10 +126,10 @@ exports.parseCV = async (req, res) => {
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" }
         });
-        
+
         const rawContent = response.choices[0].message.content;
         console.log("AI Raw Response:", rawContent);
-        
+
         // Helper to strip markdown code blocks if present
         const cleanJson = (str) => {
             return str.replace(/```json/g, '').replace(/```/g, '').trim();

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Avatar, Select, Typography, Progress, Row, Col, Tag, Divider, Empty, Badge } from 'antd';
-import { 
-  UserOutlined, 
-  ThunderboltOutlined, 
+import {
+  UserOutlined,
+  ThunderboltOutlined,
   CheckCircleOutlined,
   WarningOutlined,
   BulbOutlined,
@@ -45,11 +45,11 @@ const AIInsights = () => {
     setCandidateData({
       ...candidate,
       matchScore: id === '1' ? 92 : id === '2' ? 78 : 85,
-      summary: id === '1' 
+      summary: id === '1'
         ? "Highly proficient full-stack developer with strong leadership potential. Exceptional performance in system design and React optimization."
         : id === '2'
-        ? "Solid frontend foundation with growing expertise in enterprise Java. Good cultural fit but may require technical mentorship for cloud architecture."
-        : "Expert-level backend engineer. Exceptional understanding of infrastructure and containerization. Perfect for the DevOps-focused role.",
+          ? "Solid frontend foundation with growing expertise in enterprise Java. Good cultural fit but may require technical mentorship for cloud architecture."
+          : "Expert-level backend engineer. Exceptional understanding of infrastructure and containerization. Perfect for the DevOps-focused role.",
       pros: ["System Architecture", "React Performance", "Team Collaboration"],
       cons: ["Minimal Cloud Experience"],
       sentiment: "Positive",
@@ -78,38 +78,38 @@ const AIInsights = () => {
       </div>
 
       {!selectedId ? (
-        <Card style={{ 
-          background: '#fff', 
-          borderRadius: '32px', 
+        <Card style={{
+          background: '#fff',
+          borderRadius: '32px',
           border: '1px dashed #e2e8f0',
           padding: '80px 0',
           textAlign: 'center'
         }}>
-          <Empty 
+          <Empty
             image={<RobotOutlined style={{ fontSize: '64px', color: '#e2e8f0' }} />}
-            description={<span style={{ color: '#94a3b8' }}>Select a candidate to initiate AI-powered screening</span>} 
+            description={<span style={{ color: '#94a3b8' }}>Select a candidate to initiate AI-powered screening</span>}
           />
         </Card>
       ) : (
         <Row gutter={[24, 24]}>
           {/* Profile Column */}
           <Col xs={24} lg={8}>
-            <Card style={{ 
-              background: '#fff', 
-              borderRadius: '24px', 
+            <Card style={{
+              background: '#fff',
+              borderRadius: '24px',
               border: '1px solid #e2e8f0',
               height: '100%',
               overflow: 'hidden',
               boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
             }} bodyStyle={{ padding: 0 }}>
               <div style={{ height: '100px', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', position: 'relative' }}>
-                <Avatar 
-                  size={100} 
-                  icon={<UserOutlined />} 
-                  style={{ 
-                    position: 'absolute', 
-                    bottom: '-50px', 
-                    left: '50%', 
+                <Avatar
+                  size={100}
+                  icon={<UserOutlined />}
+                  style={{
+                    position: 'absolute',
+                    bottom: '-50px',
+                    left: '50%',
                     transform: 'translateX(-50%)',
                     border: '4px solid #fff',
                     background: '#f8fafc',
@@ -121,7 +121,7 @@ const AIInsights = () => {
               <div style={{ padding: '64px 24px 24px 24px', textAlign: 'center' }}>
                 <Title level={3} style={{ color: '#1e293b', fontWeight: 700, margin: 0 }}>{candidateData.name}</Title>
                 <Text style={{ color: '#64748b', fontSize: '14px' }}>{candidateData.email}</Text>
-                
+
                 <div style={{ marginTop: '20px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px' }}>
                   {candidateData.skills?.map(s => (
                     <Tag key={s} style={{ background: '#f3f0ff', color: '#7c3aed', border: 'none', borderRadius: '6px', fontWeight: 600 }}>{s}</Tag>
@@ -153,15 +153,15 @@ const AIInsights = () => {
             <Row gutter={[24, 24]}>
               {/* Match Score */}
               <Col span={24}>
-                <Card style={{ 
-                  background: 'linear-gradient(135deg, #f5f3ff, #e0f2fe)', 
-                  borderRadius: '24px', 
+                <Card style={{
+                  background: 'linear-gradient(135deg, #f5f3ff, #e0f2fe)',
+                  borderRadius: '24px',
                   border: '1px solid #e9e2ff',
                   overflow: 'hidden',
                   position: 'relative'
                 }}>
                   <ThunderboltOutlined style={{ position: 'absolute', right: '40px', top: '40px', fontSize: '160px', color: 'rgba(124, 58, 237, 0.05)' }} />
-                  
+
                   <Row align="middle" gutter={40}>
                     <Col xs={24} md={14}>
                       <Text style={{ color: '#7c3aed', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '11px' }}>System Audit</Text>
@@ -169,11 +169,11 @@ const AIInsights = () => {
                       <Paragraph style={{ color: '#475569', fontSize: '15px', lineHeight: '1.6' }}>
                         This multidimensional score evaluates technical alignment, cultural synergy, and behavioral indicators from the candidate's career trajectory.
                       </Paragraph>
-                      
-                      <div style={{ 
-                        background: '#fff', 
-                        padding: '16px', 
-                        borderRadius: '16px', 
+
+                      <div style={{
+                        background: '#fff',
+                        padding: '16px',
+                        borderRadius: '16px',
                         border: '1px solid #e2e8f0',
                         display: 'flex',
                         alignItems: 'center',
@@ -188,9 +188,9 @@ const AIInsights = () => {
                       </div>
                     </Col>
                     <Col xs={24} md={10} style={{ textAlign: 'center' }}>
-                      <Progress 
-                        type="dashboard" 
-                        percent={candidateData.matchScore} 
+                      <Progress
+                        type="dashboard"
+                        percent={candidateData.matchScore}
                         strokeColor={{ '0%': '#7c3aed', '100%': '#0ea5e9' }}
                         trailColor="#f1f5f9"
                         strokeWidth={10}
@@ -209,28 +209,28 @@ const AIInsights = () => {
 
               {/* Insights Grid */}
               <Col span={24}>
-                <Card 
-                  style={{ 
-                    background: '#fff', 
-                    borderRadius: '24px', 
+                <Card
+                  style={{
+                    background: '#fff',
+                    borderRadius: '24px',
                     border: '1px solid #e2e8f0',
                     height: '100%',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
                   }}
                   title={<div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#f59e0b', fontWeight: 700 }}><BulbOutlined /> AI Executive Summary</div>}
                 >
-                  <Paragraph style={{ 
-                    color: '#475569', 
-                    fontSize: '18px', 
-                    fontWeight: 500, 
-                    lineHeight: '1.8', 
+                  <Paragraph style={{
+                    color: '#475569',
+                    fontSize: '18px',
+                    fontWeight: 500,
+                    lineHeight: '1.8',
                     marginBottom: '32px',
                     fontStyle: 'italic',
                     padding: '0 12px'
                   }}>
                     "{candidateData.summary}"
                   </Paragraph>
-                  
+
                   <Row gutter={24}>
                     <Col span={12}>
                       <Text style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#22c55e', fontWeight: 800, textTransform: 'uppercase', fontSize: '11px', marginBottom: '16px' }}>
@@ -238,10 +238,10 @@ const AIInsights = () => {
                       </Text>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {candidateData.pros.map(p => (
-                          <div key={p} style={{ 
-                            background: '#f0fdf4', 
-                            padding: '12px 16px', 
-                            borderRadius: '12px', 
+                          <div key={p} style={{
+                            background: '#f0fdf4',
+                            padding: '12px 16px',
+                            borderRadius: '12px',
                             border: '1px solid #dcfce7',
                             color: '#166534',
                             fontSize: '14px',
@@ -261,10 +261,10 @@ const AIInsights = () => {
                       </Text>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {candidateData.cons.map(c => (
-                          <div key={c} style={{ 
-                            background: '#fef2f2', 
-                            padding: '12px 16px', 
-                            borderRadius: '12px', 
+                          <div key={c} style={{
+                            background: '#fef2f2',
+                            padding: '12px 16px',
+                            borderRadius: '12px',
                             border: '1px solid #fee2e2',
                             color: '#991b1b',
                             fontSize: '14px',

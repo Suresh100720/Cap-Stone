@@ -47,42 +47,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* Ag Grid Premium Styling */
-.ag-theme-alpine {
-  --ag-header-background-color: transparent;
-  --ag-header-foreground-color: #64748b;
-  --ag-header-cell-font-weight: 700;
-  --ag-header-cell-font-size: 12px;
-  --ag-font-family: 'Plus Jakarta Sans', sans-serif;
-  --ag-font-size: 14px;
-  --ag-row-hover-color: #f8fafc;
-  --ag-selected-row-background-color: #f5f3ff;
-  --ag-border-color: #f1f5f9;
-  --ag-border-radius: 16px;
-}
-
-.ag-header-cell-center .ag-header-cell-label {
-  justify-content: center !important;
-}
-
-
-
-.ag-cell-wrapper.ag-row-group-indent-0 {
-  justify-content: center !important;
-}
-
-.ag-selection-checkbox {
-  margin: 0 !important;
-}
-
-.ag-header-cell-text {
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.ag-root-wrapper {
-  border: none !important;
-}
 
 /* Animation */
 @keyframes fadeInUp {

@@ -354,8 +354,8 @@ npx wrangler pages dev --proxy 5173
 # 🚀 Deployment
 
 ```bash
-npm run build
-npx wrangler pages deploy dist
+# Run from the root directory
+npm run deploy
 ```
 
 ---

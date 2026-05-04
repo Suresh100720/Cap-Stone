@@ -26,7 +26,7 @@ exports.matchCandidate = async (req, res) => {
     try {
         const candidate = await Candidate.findById(candidateId);
         const job = await Job.findById(jobId);
-        
+
         if (!candidate || !job) return res.status(404).json({ message: 'Not found' });
 
         const matching = calculateMatch(candidate, job);

@@ -8,7 +8,7 @@ import PromptDebugger from '../components/PromptDebugger';
 import axios from 'axios';
 
 // Cloudflare API Endpoint
-const CF_JD_API = '/api/jd/generate';
+const CF_JD_API = '/api/ai/generate-jd';
 
 const INIT = { role: '', experience: '', department: '', skills: [], workMode: '' };
 
