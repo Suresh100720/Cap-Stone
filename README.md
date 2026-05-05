@@ -137,104 +137,67 @@ User → React Frontend → Express API → MongoDB + Elasticsearch
 
 # 📁 Folder Structure
 
-```text
 Mini Recruitment CRM/
-├── .env                        # Root environment variables
-├── .gitignore                  # Git exclusion rules
-├── README.md                   # Project documentation
-├── wrangler.json               # Cloudflare Pages/Functions config
-├── package.json                # Root dependencies & scripts
-│
-├── client/                     # Frontend (Vite + React)
-│   ├── public/
-│   │   └── _redirects          # SPA routing rules
+├── client/                      # Frontend (React + Vite)
 │   ├── src/
 │   │   ├── api/
-│   │   │   └── axiosInstance.js # API client configuration
+│   │   │   └── axiosInstance.js # Centralized API client
 │   │   ├── components/
-│   │   │   ├── layout/         # Core layout components
-│   │   │   │   ├── MainLayout.jsx
-│   │   │   │   ├── Navbar.jsx
-│   │   │   │   └── Sidebar.jsx
-│   │   │   ├── CandidateFormModal.jsx
-│   │   │   ├── CandidateTable.jsx
+│   │   │   ├── auth/            # Protected route logic
+│   │   │   ├── layout/          # Sidebar & Navigation
+│   │   │   ├── ChatMessage.jsx  # AI Chat Bubbles
 │   │   │   ├── DashboardCharts.jsx
-│   │   │   ├── FileUpload.jsx
 │   │   │   ├── JDForm.jsx
 │   │   │   ├── JDPreviewDocument.jsx
+│   │   │   ├── StatCard.jsx
 │   │   │   ├── LoadingSpinner.jsx
-│   │   │   └── StatCard.jsx
-│   │   ├── context/            # Auth & App state providers
-│   │   │   ├── AppContext.jsx
-│   │   │   └── AuthContext.jsx
-│   │   ├── pages/              # Application views
-│   │   │   ├── CVSummariser.jsx # AI Resume Analysis
-│   │   │   ├── Candidates.jsx   # Candidate Management
-│   │   │   ├── Dashboard.jsx    # Home view with analytics
-│   │   │   ├── JDGenerator.jsx  # AI Job Description Generator
-│   │   │   ├── Jobs.jsx         # Job Management
+│   │   │   └── PromptDebugger.jsx
+│   │   ├── context/
+│   │   │   ├── AuthContext.jsx  # Firebase Auth logic
+│   │   │   └── AppContext.jsx   # Global state
+│   │   ├── pages/
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Candidates.jsx
+│   │   │   ├── Jobs.jsx
+│   │   │   ├── Search.jsx
+│   │   │   ├── CVSummariser.jsx # AI CV Analysis
+│   │   │   ├── JDGenerator.jsx  # AI JD Architect
 │   │   │   ├── Login.jsx
-│   │   │   ├── Register.jsx
-│   │   │   └── Search.jsx       # AI Talent Discovery
-│   │   ├── services/           # Frontend API wrappers
-│   │   │   ├── aiService.js
-│   │   │   ├── candidateService.js
-│   │   │   ├── jobService.js
+│   │   │   └── Register.jsx
+│   │   ├── services/            # Legacy API services
+│   │   │   ├── api.js
 │   │   │   └── searchService.js
-│   │   ├── App.jsx             # Main router
-│   │   ├── index.css           # Global styles
-│   │   └── main.jsx            # Entry point
-│   ├── package.json
-│   └── vite.config.js
-│
-├── functions/                  # Cloudflare Pages Functions (AI/R2)
-│   └── api/
-│       ├── cv/                 # Resume AI endpoints
-│       │   ├── ask.js          # Interactive chat
-│       │   ├── parse.js        # Resume parsing
-│       │   └── upload.js       # R2 File handling
-│       ├── jd/                 # JD Generator endpoints
-│       │   └── generate.js
-│       └── utils/              # Serverless utilities
-│           ├── aiClient.js     # CF AI binding
-│           └── r2Client.js     # CF R2 binding
-│
-├── server/                     # Primary Backend (Node.js/Express)
-│   ├── config/                 # DB & Search engine config
-│   │   ├── db.js               # MongoDB connection
-│   │   └── es.js               # ElasticSearch/Scoring config
-│   ├── controllers/            # Business logic handlers
-│   │   ├── aiController.js
-│   │   ├── authController.js
+│   │   └── index.css            # Global Tailwind styles
+│   └── package.json
+├── server/                      # Backend (Node.js + MongoDB)
+│   ├── config/
+│   │   ├── db.js                # MongoDB Connection
+│   │   └── es.js                # Elasticsearch (Inactive)
+│   ├── controllers/             # Request handlers
 │   │   ├── candidateController.js
 │   │   ├── jobController.js
-│   │   ├── searchController.js
-│   │   └── statsController.js
-│   ├── models/                 # Mongoose schemas
+│   │   └── searchController.js
+│   ├── models/                  # Database Schemas
 │   │   ├── Candidate.js
-│   │   ├── Job.js
-│   │   └── User.js
-│   ├── routes/                 # API endpoints
-│   │   ├── aiRoutes.js
-│   │   ├── authRoutes.js
-│   │   ├── candidateRoutes.js
-│   │   ├── jobRoutes.js
-│   │   ├── searchRoutes.js
-│   │   └── statsRoutes.js
-│   ├── services/               # Core logic services
-│   │   ├── aiService.js
-│   │   ├── esService.js
-│   │   └── scoringService.js
-│   ├── app.js                  # App configuration
-│   └── server.js               # Server entry point
-│
-├── prompts/                    # AI System Prompts
-│   ├── cvEnrichmentPrompt.txt
-│   ├── queryExpansionPrompt.txt
-│   └── screeningPrompt.txt
-│
-└── uploads/                    # Temporary local storage (Dev)
-```
+│   │   └── Job.js
+│   ├── services/
+│   │   └── esService.js         # Search utility
+│   └── server.js                # Express entry point
+├── functions/                   # Cloudflare AI Functions
+│   └── api/
+│       ├── cv/
+│       │   ├── ask.js           # RAG Chat logic
+│       │   └── upload.js        # R2 Storage logic
+│       ├── jd/
+│       │   └── generate.js      # JD Generation logic
+│       └── utils/
+│           ├── aiClient.js      # CF Workers AI connector
+│           └── r2Client.js      # CF R2 connector
+├── prompts/                     # AI Instruction templates (.txt)
+├── elasticsearch/               # Index setup scripts
+├── .env                         # Secrets & API Keys
+├── wrangler.toml                # Cloudflare deployment config
+└── package.json                 # Root dependencies
 ```
 
 ---
