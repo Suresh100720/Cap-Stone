@@ -196,7 +196,6 @@ Mini Recruitment CRM/
 ├── .env                         # Secrets & API Keys
 ├── wrangler.toml                # Cloudflare deployment config
 └── package.json                 # Root dependencies
-```
 
 ---
 
