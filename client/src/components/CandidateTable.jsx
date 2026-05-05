@@ -20,18 +20,18 @@ const avatarColor = (name = "") => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COL
 const CandidateCellRenderer = ({ value }) => (
   <div className="flex items-center gap-2 h-full">
     <div
-      className="rounded-full flex items-center justify-center font-bold text-white shadow-sm shrink-0"
-      style={{ width: 28, height: 28, background: avatarColor(value), fontSize: 10 }}
+      className="rounded-full flex items-center justify-center font-bold text-white shadow-sm shrink-0 text-[10px] w-7 h-7"
+      style={{ background: avatarColor(value) }}
     >
       {value?.charAt(0).toUpperCase()}
     </div>
-    <span className="font-bold text-slate-800 truncate" style={{ fontSize: 13 }}>{value}</span>
+    <span className="font-bold text-slate-800 truncate text-[13px]">{value}</span>
   </div>
 );
 
 const RoleCellRenderer = ({ value }) => (
   <div className="flex items-center h-full">
-    <span className="text-slate-500 font-semibold" style={{ fontSize: 13 }}>
+    <span className="text-slate-500 font-semibold text-[13px]">
       {value || "N/A"}
     </span>
   </div>
@@ -54,7 +54,10 @@ const StatusBadge = ({ status }) => {
     'On Hold': 'orange'
   };
   return (
-    <Tag color={colors[status] || 'blue'} style={{ borderRadius: '4px', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase' }}>
+    <Tag 
+      color={colors[status] || 'blue'} 
+      className="!rounded-[4px] font-semibold text-[11px] uppercase"
+    >
       {status || 'Active'}
     </Tag>
   );
@@ -98,8 +101,8 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
     if (showEdit) {
       items.push({
         key: "edit",
-        icon: <EditOutlined style={{ color: "#6366f1" }} />,
-        label: <span style={{ color: "#6366f1", fontWeight: 600 }}>Edit</span>,
+        icon: <EditOutlined className="text-[#6366f1]" />,
+        label: <span className="text-[#6366f1] font-semibold">Edit</span>,
         onClick: () => onEdit && onEdit(data),
       });
       items.push({ type: "divider" });
@@ -119,7 +122,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
           <Button
             type="text"
             shape="circle"
-            icon={<MoreOutlined style={{ fontSize: 18, color: "#64748b" }} />}
+            icon={<MoreOutlined className="text-lg text-slate-500" />}
           />
         </Dropdown>
       </div>
@@ -153,7 +156,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
     if (isJobType) {
       return [
         checkboxCol,
-        { field: 'title', headerName: 'Job Title', flex: 1.5, cellStyle: { fontWeight: 600 } },
+        { field: 'title', headerName: 'Job Title', flex: 1.5, cellClass: "font-semibold" },
         { field: 'department', flex: 1 },
         { field: 'location', flex: 1 },
         {
@@ -201,7 +204,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
         valueFormatter: (p) => (p.value || []).join(', '),
         cellRenderer: (p) => {
           const skills = p.data.skills || [];
-          if (skills.length === 0) return <span style={{ color: '#cbd5e1', fontSize: 13 }}>—</span>;
+          if (skills.length === 0) return <span className="text-[#cbd5e1] text-[13px]">—</span>;
 
           const displaySkills = skills.slice(0, 3);
           const extraCount = skills.length - 3;
@@ -209,7 +212,13 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
           return (
             <div className="flex items-center gap-1 flex-wrap h-full">
               {displaySkills.map(s => (
-                <Tag key={s} color="blue" style={{ fontSize: '10px', borderRadius: '4px', margin: 0, fontWeight: 600 }}>{s}</Tag>
+                <Tag 
+                  key={s} 
+                  color="blue" 
+                  className="!text-[10px] !rounded-[4px] !m-0 font-semibold"
+                >
+                  {s}
+                </Tag>
               ))}
               {extraCount > 0 && (
                 <Dropdown
@@ -227,9 +236,8 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
                   )}
                 >
                   <Tag
-                    className="cursor-pointer hover:bg-indigo-100 transition-colors"
+                    className="cursor-pointer hover:bg-indigo-100 transition-colors !text-[10px] !rounded-[4px] !m-0 font-extrabold !bg-[#e0e7ff] !text-[#4338ca] !border-[#c7d2fe]"
                     color="indigo"
-                    style={{ fontSize: '10px', borderRadius: '4px', margin: 0, fontWeight: 800, background: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' }}
                   >
                     +{extraCount}
                   </Tag>
@@ -266,7 +274,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
           rowData={rowData}
           columnDefs={colDefs}
           defaultColDef={{
-            cellStyle: { textAlign: 'left', display: 'flex', alignItems: 'center' },
+            cellClass: "flex items-center justify-start",
             sortable: true,
             filter: false,
             resizable: true,

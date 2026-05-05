@@ -44,105 +44,81 @@ const Login = () => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      background: '#0a0a0c',
-      fontFamily: "'Inter', sans-serif",
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
+    <div className="min-h-screen flex bg-[#0a0a0c] font-['Inter',sans-serif] relative overflow-hidden">
       {/* Background Glows */}
-      <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '40%', height: '40%', background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-      <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '40%', height: '40%', background: 'radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+      <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-[radial-gradient(circle,_rgba(124,58,237,0.15)_0%,_transparent_70%)] blur-[60px]" />
+      <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-[radial-gradient(circle,_rgba(34,211,238,0.15)_0%,_transparent_70%)] blur-[60px]" />
 
       {/* Left Side: Branding (Visible on desktop) */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '80px', zIndex: 1, borderRight: '1px solid rgba(255,255,255,0.03)' }} className="hidden md:flex">
-        <Space align="center" style={{ marginBottom: '40px' }}>
-          <div style={{ width: '48px', height: '48px', background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px', boxShadow: '0 8px 16px rgba(124, 58, 237, 0.4)' }}>
+      <div className="hidden md:flex flex-1 flex-col justify-center p-20 z-10 border-r border-white/5">
+        <Space align="center" className="mb-10">
+          <div className="w-12 h-12 bg-gradient-to-br from-[#7c3aed] to-[#4f46e5] rounded-xl flex items-center justify-center text-white text-2xl shadow-[0_8px_16px_rgba(124,58,237,0.4)]">
             <ThunderboltOutlined />
           </div>
-          <Title level={2} style={{ color: '#f1f5f9', fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>RecruitAI</Title>
+          <Title level={2} className="!text-slate-100 font-black !m-0 tracking-tight">RecruitAI</Title>
         </Space>
-        <Title level={1} style={{ color: '#f1f5f9', fontWeight: 900, fontSize: '48px', lineHeight: 1.1, marginBottom: '24px' }}>
-          The future of <span style={{ background: 'linear-gradient(to right, #a78bfa, #22d3ee)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>intelligent</span> talent acquisition.
+        <Title level={1} className="!text-slate-100 font-black text-[48px] !leading-[1.1] mb-6">
+          The future of <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">intelligent</span> talent acquisition.
         </Title>
-        <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: '18px', maxWidth: '480px', lineHeight: 1.6 }}>
+        <Text className="text-white/40 text-lg max-w-[480px] leading-relaxed">
           Harness the power of Cloudflare AI to streamline your recruitment pipeline with precision and speed.
         </Text>
       </div>
 
       {/* Right Side: Login Form */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', zIndex: 1 }}>
-        <div style={{
-          width: '100%',
-          maxWidth: '420px',
-          background: 'rgba(255,255,255,0.02)',
-          padding: '48px',
-          borderRadius: '32px',
-          border: '1px solid rgba(255,255,255,0.05)',
-          backdropFilter: 'blur(20px)',
-          boxShadow: '0 24px 48px rgba(0,0,0,0.4)'
-        }}>
-          <div style={{ marginBottom: '40px' }}>
-            <Title level={2} style={{ color: '#f1f5f9', fontWeight: 800, marginBottom: '8px' }}>Identity Portal</Title>
-            <Text style={{ color: 'rgba(255,255,255,0.4)' }}>Please authenticate to access the intelligence suite</Text>
+      <div className="flex-1 flex items-center justify-center p-10 z-10">
+        <div className="w-full max-w-[420px] bg-white/[0.02] p-12 rounded-[32px] border border-white/5 backdrop-blur-[20px] shadow-[0_24px_48px_rgba(0,0,0,0.4)]">
+          <div className="mb-10">
+            <Title level={2} className="!text-slate-100 font-extrabold mb-2">Identity Portal</Title>
+            <Text className="text-white/40">Please authenticate to access the intelligence suite</Text>
           </div>
 
           <Form name="login" layout="vertical" onFinish={onFinish} requiredMark={false}>
             <Form.Item name="email" rules={[{ required: true, type: 'email', message: 'Valid email required' }]}>
               <Input
-                prefix={<MailOutlined style={{ color: '#7c3aed', marginRight: '12px' }} />}
+                prefix={<MailOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Email Address"
-                style={{ height: '54px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: 'white' }}
+                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
 
             <Form.Item name="password" rules={[{ required: true, message: 'Password required' }]}>
               <Input.Password
-                prefix={<LockOutlined style={{ color: '#7c3aed', marginRight: '12px' }} />}
+                prefix={<LockOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Password"
-                style={{ height: '54px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '14px', color: 'white' }}
+                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white [&_input]::placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
 
-            <div style={{ textAlign: 'right', marginBottom: '32px' }}>
-              <Link to="#" style={{ color: '#7c3aed', fontSize: '13px', fontWeight: 600 }}>Forgot Access Code?</Link>
+            <div className="text-right mb-8">
+              <Link to="#" className="text-[#7c3aed] text-[13px] font-semibold hover:text-violet-400 transition-colors">Forgot Access Code?</Link>
             </div>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" block loading={loading} style={{ height: '54px', borderRadius: '14px', background: 'linear-gradient(to right, #7c3aed, #4f46e5)', border: 'none', fontWeight: 800, fontSize: '16px', boxShadow: '0 12px 24px rgba(124, 58, 237, 0.3)' }}>
+              <Button type="primary" htmlType="submit" block loading={loading} className="!h-[54px] !rounded-[14px] !bg-gradient-to-r !from-[#7c3aed] !to-[#4f46e5] !border-none font-extrabold text-base !shadow-[0_12px_24px_rgba(124,58,237,0.3)]">
                 INITIATE ACCESS
               </Button>
             </Form.Item>
           </Form>
 
-          <Divider style={{ borderColor: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.2)', fontSize: '12px', fontWeight: 700 }}>OR NEURAL LINK</Divider>
+          <Divider className="!border-white/5 !text-white/20 text-[12px] font-bold uppercase tracking-widest">OR NEURAL LINK</Divider>
 
           <Button
             block
-            icon={<GoogleOutlined style={{ color: '#ef4444' }} />}
+            icon={<GoogleOutlined className="text-rose-500" />}
             onClick={handleGoogleLogin}
             loading={googleLoading}
-            style={{ height: '54px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', fontWeight: 600 }}
+            className="!h-[54px] !rounded-[14px] !bg-white/[0.03] !border-white/10 !text-slate-100 font-semibold hover:!bg-white/10 transition-all"
           >
             Sign in with Google
           </Button>
 
-          <div style={{ marginTop: '32px', textAlign: 'center' }}>
-            <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px' }}>New recruit? </Text>
-            <Link to="/register" style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '14px' }}>REGISTER NOW</Link>
+          <div className="mt-8 text-center">
+            <Text className="text-white text-sm">New recruit? </Text>
+            <Link to="/register" className="text-slate-100 font-black text-sm hover:text-white transition-colors uppercase">Register Now</Link>
           </div>
         </div>
       </div>
-      <style>{`
-        input::placeholder {
-          color: white !important;
-        }
-        .ant-input-password-icon {
-          color: rgba(255, 255, 255, 0.4) !important;
-        }
-      `}</style>
     </div>
   );
 };

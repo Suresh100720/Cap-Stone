@@ -30,12 +30,15 @@ const JDGenerator = () => {
 
   const handleChange = (field, val) => setValues(prev => ({ ...prev, [field]: val }));
 
-  const deleteHistory = (e, timestamp) => {
-    e.stopPropagation();
+  const deleteHistory = (timestamp) => {
     const newHistory = history.filter(h => h.timestamp !== timestamp);
     setHistory(newHistory);
     localStorage.setItem('jd_history', JSON.stringify(newHistory));
-    if (jd?.timestamp === timestamp) setJd(null);
+    if (jd && String(jd.timestamp) === String(timestamp)) {
+      setJd(null);
+      setValues(INIT);
+      antMessage.success('Generation deleted');
+    }
   };
 
   const handleGenerate = async () => {
@@ -48,14 +51,22 @@ const JDGenerator = () => {
     try {
       const payload = {
         title: values.role,
+        experience: values.experience,
         department: values.department || 'Engineering',
+        workMode: values.workMode || 'Remote',
         requirements: values.skills.join(', ') || 'Relevant experience',
       };
       
       const res = await axios.post(CF_JD_API, payload);
       const data = res.data;
       
-      const newJd = { ...data, timestamp: Date.now() };
+      // Merge AI generated content with original form values to ensure all fields (skills, exp) are present
+      const newJd = { 
+        ...values,
+        title: values.role, // Ensure title matches role if AI returns something else
+        ...data, 
+        timestamp: Date.now() 
+      };
       setJd(newJd);
       
       const newHistory = [newJd, ...history].slice(0, 20);
@@ -80,57 +91,53 @@ const JDGenerator = () => {
   };
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: '#ffffff', margin: '-24px', overflow: 'hidden' }}>
+    <div className="flex h-[calc(100vh-64px)] bg-white -m-6 overflow-hidden">
       
       {/* Sidebar: Recents */}
-      <div style={{ width: 280, background: '#f9fafb', display: 'flex', flexDirection: 'column', padding: '16px', borderRight: '1px solid #e5e7eb' }}>
+      <div className="w-[280px] bg-slate-50 flex flex-col p-4 border-r border-slate-200">
         <Button 
           type="primary" 
           icon={<PlusOutlined />} 
           onClick={startNew}
-          style={{ 
-            background: '#ffffff',
-            color: '#111827',
-            border: '1px solid #e5e7eb',
-            textAlign: 'left', 
-            height: 44, 
-            borderRadius: 12,
-            marginBottom: 24,
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: 14,
-            fontWeight: 600,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-          }}
-          className="sidebar-new-chat"
+          className="!bg-white !text-slate-900 !border-slate-200 !text-left !h-11 !rounded-xl mb-6 flex items-center text-sm font-semibold shadow-sm hover:!bg-slate-100 hover:!border-slate-300 transition-all"
         >
           New Generation
         </Button>
 
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <p style={{ color: '#6b7280', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0 12px 10px' }}>Recent Generations</p>
+        <div className="flex-1 overflow-y-auto flex flex-col gap-1">
+          <div className="flex justify-between items-center px-3 pb-2.5">
+            <p className="text-slate-500 text-[11px] font-bold uppercase tracking-wider m-0">Recent Generations</p>
+            {history.length > 0 && (
+              <Popconfirm title="Clear all history?" onConfirm={() => { 
+                setHistory([]); 
+                localStorage.setItem('jd_history', JSON.stringify([])); 
+                setJd(null); 
+                setValues(INIT);
+                antMessage.success('All history cleared');
+              }}>
+                <span className="text-[10px] text-slate-400 hover:text-red-500 cursor-pointer font-bold transition-colors uppercase">Clear All</span>
+              </Popconfirm>
+            )}
+          </div>
+          {history.length === 0 && (
+            <div className="px-3 py-10 text-center">
+              <p className="text-slate-400 text-[12px] italic">No recent generations</p>
+            </div>
+          )}
           {history.map((h) => (
             <div 
               key={h.timestamp} 
               onClick={() => setJd(h)}
-              style={{ 
-                padding: '10px 12px', 
-                borderRadius: 10, 
-                cursor: 'pointer',
-                background: jd?.timestamp === h.timestamp ? '#f3f4f6' : 'transparent',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                transition: 'all 0.2s'
-              }}
-              className="history-item-light"
+              className={`p-2.5 px-3 rounded-lg cursor-pointer flex justify-between items-center transition-all duration-200 group ${jd?.timestamp === h.timestamp ? 'bg-slate-200' : 'bg-transparent hover:bg-slate-200'}`}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden', flex: 1 }}>
-                <FileText size={15} color={jd?.timestamp === h.timestamp ? '#7c3aed' : '#9ca3af'} />
-                <span style={{ color: jd?.timestamp === h.timestamp ? '#111827' : '#4b5563', fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{h.title}</span>
+              <div className="flex items-center gap-2.5 overflow-hidden flex-1">
+                <FileText size={15} className={jd?.timestamp === h.timestamp ? 'text-[#7c3aed]' : 'text-slate-400'} />
+                <span className={`text-[13px] font-medium truncate ${jd?.timestamp === h.timestamp ? 'text-slate-900' : 'text-slate-600'}`}>
+                  {h.title}
+                </span>
               </div>
-              <Popconfirm title="Delete?" onConfirm={(e) => deleteHistory(e, h.timestamp)} onCancel={e => e.stopPropagation()}>
-                <DeleteOutlined style={{ color: '#9ca3af', fontSize: 12 }} onClick={e => e.stopPropagation()} className="delete-icon-light" />
+              <Popconfirm title="Delete this generation?" onConfirm={() => deleteHistory(h.timestamp)} onCancel={e => e.stopPropagation()}>
+                <DeleteOutlined className="text-slate-300 hover:text-red-500 transition-colors text-[13px] p-1" onClick={e => e.stopPropagation()} />
               </Popconfirm>
             </div>
           ))}
@@ -138,50 +145,55 @@ const JDGenerator = () => {
       </div>
 
       {/* Main Content: Split View */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#ffffff' }}>
+      <div className="flex-1 flex flex-col bg-white">
         
         {/* Header */}
-        <div style={{ height: 64, display: 'flex', alignItems: 'center', padding: '0 24px', borderBottom: '1px solid #f3f4f6', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Bot size={20} color="#7c3aed" />
-                <span style={{ color: '#111827', fontWeight: 700, fontSize: 16 }}>Job Description Architect</span>
+        <div className="h-16 flex items-center px-6 border-b border-slate-100 justify-between">
+            <div className="flex items-center gap-3">
+                <Bot size={20} className="text-[#7c3aed]" />
+                <span className="text-slate-900 font-bold text-base tracking-tight">Job Description Architect</span>
             </div>
             <Space>
                 {debugData && (
-                    <Button type="text" icon={<Bug size={14} />} onClick={() => setShowDebug(!showDebug)} style={{ color: showDebug ? '#f59e0b' : '#9ca3af' }} />
+                    <Button 
+                      type="text" 
+                      icon={<Bug size={14} />} 
+                      onClick={() => setShowDebug(!showDebug)} 
+                      className={showDebug ? 'text-amber-500' : 'text-slate-400'} 
+                    />
                 )}
             </Space>
         </div>
 
         {/* Workspace */}
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <div className="flex-1 flex overflow-hidden">
             
             {/* Left: Form */}
-            <div style={{ width: '400px', borderRight: '1px solid #f3f4f6', padding: '32px 24px', overflowY: 'auto', background: '#f9fafb' }}>
-                <div style={{ marginBottom: 24 }}>
-                    <h3 style={{ color: '#111827', fontSize: 18, fontWeight: 800, marginBottom: 4 }}>Job Parameters</h3>
-                    <p style={{ color: '#6b7280', fontSize: 13 }}>Configure the core details of the position.</p>
+            <div className="w-[400px] border-r border-slate-100 p-8 px-6 overflow-y-auto bg-slate-50">
+                <div className="mb-6">
+                    <h3 className="text-slate-900 text-lg font-extrabold mb-1">Job Parameters</h3>
+                    <p className="text-slate-500 text-[13px]">Configure the core details of the position.</p>
                 </div>
                 <JDForm values={values} onChange={handleChange} onGenerate={handleGenerate} loading={loading} />
             </div>
 
             {/* Right: Output */}
-            <div style={{ flex: 1, padding: '32px', overflowY: 'auto', background: '#ffffff', position: 'relative' }}>
+            <div className="flex-1 p-8 overflow-y-auto bg-white relative" key={jd?.timestamp || 'empty'}>
                 {loading ? (
-                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="h-full flex flex-col items-center justify-center">
                         <Spin size="large" />
-                        <p style={{ marginTop: 16, color: '#6b7280', fontWeight: 500 }}>Workers AI is architecting your JD...</p>
+                        <p className="mt-4 text-slate-500 font-medium animate-pulse">Workers AI is architecting your JD...</p>
                     </div>
                 ) : jd ? (
-                    <div style={{ maxWidth: 800, margin: '0 auto' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                <div style={{ background: '#f5f3ff', padding: '8px', borderRadius: 10 }}>
-                                    <FileText size={20} color="#7c3aed" />
+                    <div className="max-w-[800px] mx-auto animate-fade-in">
+                        <div className="flex justify-between items-center mb-6">
+                            <div className="flex items-center gap-2.5">
+                                <div className="bg-[#f5f3ff] p-2 rounded-xl">
+                                    <FileText size={20} className="text-[#7c3aed]" />
                                 </div>
                                 <div>
-                                    <h2 style={{ color: '#111827', fontSize: 20, fontWeight: 800, margin: 0 }}>Generated Document</h2>
-                                    <p style={{ color: '#6b7280', fontSize: 12, margin: 0 }}>Ready for review and export</p>
+                                    <h2 className="text-slate-900 text-xl font-extrabold m-0">Generated Document</h2>
+                                    <p className="text-slate-500 text-[12px] m-0">Ready for review and export</p>
                                 </div>
                             </div>
                             <Button onClick={startNew} type="dashed">Reset Workspace</Button>
@@ -189,32 +201,24 @@ const JDGenerator = () => {
                         <JDPreviewDocument jd={jd} />
                     </div>
                 ) : (
-                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
-                        <div style={{ background: '#f9fafb', borderRadius: '50%', width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, border: '1px dashed #e5e7eb' }}>
-                            <Sparkles size={40} color="#e5e7eb" />
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                        <div className="bg-slate-50 rounded-full w-20 h-20 flex items-center justify-center mb-6 border border-dashed border-slate-200 shadow-sm animate-fade-in">
+                            <Sparkles size={40} className="text-slate-200" />
                         </div>
-                        <h2 style={{ color: '#4b5563', fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Ready to Architect</h2>
-                        <p style={{ maxWidth: 300, textAlign: 'center', fontSize: 14 }}>Fill in the parameters on the left to generate a professional job description using AI.</p>
+                        <h2 className="text-slate-600 text-xl font-bold mb-2 tracking-tight">Ready to Architect</h2>
+                        <p className="max-w-[300px] text-center text-sm leading-relaxed">Fill in the parameters on the left to generate a professional job description using AI.</p>
                     </div>
                 )}
 
                 {/* Debug Overlay */}
                 {showDebug && debugData && (
-                    <div style={{ position: 'absolute', top: 32, left: 32, right: 32, zIndex: 100, boxShadow: '0 20px 50px rgba(0,0,0,0.1)' }}>
+                    <div className="absolute top-8 left-8 right-8 z-50 shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
                         <PromptDebugger systemPrompt={debugData.system} userPrompt={debugData.user} rawResponse={debugData.raw} />
                     </div>
                 )}
             </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .sidebar-new-chat:hover { background: #f3f4f6 !important; border-color: #d1d5db !important; }
-        .history-item-light:hover { background: #f3f4f6 !important; }
-        .history-item-light:hover .delete-icon-light { opacity: 1; }
-        .delete-icon-light { opacity: 0; transition: opacity 0.2s; }
-      `}</style>
     </div>
   );
 };

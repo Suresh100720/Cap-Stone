@@ -158,29 +158,24 @@ const Dashboard = () => {
   }));
 
   return (
-    <div style={{ 
-      margin: '-24px -24px 0 -24px', 
-      padding: '24px 24px 40px 24px', 
-      background: '#f8fafc', 
-      minHeight: 'calc(100vh - 64px)' 
-    }}>
+    <div className="pb-10 bg-[#f8fafc] min-h-[calc(100vh-64px)] -mx-6 -mt-6 p-6">
       {/* Stat Cards Row */}
-      <Row gutter={[24, 24]} style={{ marginBottom: '32px' }}>
+      <Row gutter={[24, 24]} className="mb-8">
         <Col xs={24} sm={12} xl={6}>
-          <StatCard title="Total Candidates" value={stats?.totalCandidates || 0} icon={<UserOutlined />} backgroundColor="#f5f3ff" iconColor="#7c3aed" onClick={() => handleStatClick('total_candidates')} />
+          <StatCard title="Total Candidates" value={stats?.totalCandidates || 0} icon={<UserOutlined />} backgroundColor="#f0f0ff" iconColor="#7c3aed" onClick={() => handleStatClick('total_candidates')} />
         </Col>
         <Col xs={24} sm={12} xl={6}>
-          <StatCard title="Active" value={stats?.byStatus?.Active || 0} icon={<RocketOutlined />} backgroundColor="#f0fdf4" iconColor="#22c55e" onClick={() => handleStatClick('active')} />
+          <StatCard title="Active" value={stats?.byStatus?.Active || 0} icon={<RocketOutlined />} backgroundColor="#f0fff4" iconColor="#22c55e" onClick={() => handleStatClick('active')} />
         </Col>
         <Col xs={24} sm={12} xl={6}>
-          <StatCard title="Inactive" value={stats?.byStatus?.Inactive || 0} icon={<SolutionOutlined />} backgroundColor="#fffbeb" iconColor="#f59e0b" onClick={() => handleStatClick('inactive')} />
+          <StatCard title="Inactive" value={stats?.byStatus?.Inactive || 0} icon={<SolutionOutlined />} backgroundColor="#fffaf0" iconColor="#f59e0b" onClick={() => handleStatClick('inactive')} />
         </Col>
         <Col xs={24} sm={12} xl={6}>
-          <StatCard title="Total Jobs" value={stats?.totalJobs || 0} icon={<FileTextOutlined />} backgroundColor="#f0f9ff" iconColor="#0ea5e9" onClick={() => handleStatClick('total_jobs')} />
+          <StatCard title="Total Jobs" value={stats?.totalJobs || 0} icon={<FileTextOutlined />} backgroundColor="#f0faff" iconColor="#0ea5e9" onClick={() => handleStatClick('total_jobs')} />
         </Col>
       </Row>
 
-      <div style={{ marginBottom: '32px' }}>
+      <div className="mb-8">
         <DashboardCharts 
           candidateRadarData={candidateRadarData} 
           jobPieData={jobPieData}
@@ -188,10 +183,6 @@ const Dashboard = () => {
           totalJobs={stats?.totalJobs || 0} 
         />
       </div>
-
-
-
-
 
       <CandidateFormModal
         open={isFormModalOpen}
@@ -203,7 +194,7 @@ const Dashboard = () => {
 
       <Modal
         title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 'calc(100% - 40px)' }}>
+          <div className="flex justify-between items-center w-[calc(100%-40px)]">
             <span>{statModal.title}</span>
             <Space>
               {selectedStatRows.length > 0 && (
@@ -220,7 +211,7 @@ const Dashboard = () => {
                         message.success(`Exported ${selectedStatRows.length} items to CSV`);
                       }
                     }}
-                    style={{ background: '#16a34a', borderColor: '#16a34a' }}
+                    className="!bg-[#16a34a] !border-[#16a34a]"
                   >
                     Export ({selectedStatRows.length})
                   </Button>

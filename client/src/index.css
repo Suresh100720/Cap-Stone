@@ -92,3 +92,10 @@ body {
 .search-btn-inside:active {
   transform: scale(0.95);
 }
+
+
+
+.ant-input::placeholder {
+  color: rgb(142, 136, 136) !important;
+  opacity: 1 !important;
+}

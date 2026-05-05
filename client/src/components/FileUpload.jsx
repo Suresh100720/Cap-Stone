@@ -39,23 +39,6 @@ const FileUpload = ({ onUpload, disabled }) => {
           Support for a single PDF or DOCX. Max 10MB.
         </p>
       </Dragger>
-      
-      <style>{`
-        .ant-upload-drag {
-          background: #fff !important;
-          border: 2px dashed #e2e8f0 !important;
-          border-radius: 16px !important;
-          transition: all 0.3s ease !important;
-        }
-        .ant-upload-drag:hover {
-          border-color: #6366F1 !important;
-          background: rgba(99, 102, 241, 0.02) !important;
-        }
-        .ant-upload-text {
-          color: #1e293b !important;
-          margin-top: 16px !important;
-        }
-      `}</style>
     </div>
   );
 };

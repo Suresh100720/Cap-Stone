@@ -2,7 +2,7 @@ import React from 'react';
 import { Spin } from 'antd';
 
 const LoadingSpinner = () => (
-  <div style={{ height: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  <div className="h-[80vh] flex items-center justify-center">
     <Spin size="large" />
   </div>
 );

@@ -15,17 +15,11 @@ const DEPT_OPTIONS = ['Engineering','Product','Design','Marketing','Sales','HR',
 
 const QUICK_SKILLS = ['React','Node.js','Python','TypeScript','AWS','Docker','SQL','MongoDB','GraphQL','REST APIs','Java','Kubernetes'];
 
-const fieldLabel = (text) => (
-  <label style={{ color: '#64748b', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6, fontWeight: 600 }}>
+const FieldLabel = ({ text }) => (
+  <label className="text-slate-500 text-[0.72rem] uppercase tracking-wider block mb-1.5 font-semibold">
     {text}
   </label>
 );
-
-const inputStyle = {
-  background: '#fff',
-  border: '1px solid #e2e8f0',
-  color: '#1e293b', borderRadius: 10,
-};
 
 const ROLE_OPTIONS = [
   'Software Engineer', 'Fullstack Developer', 'UI/UX Designer', 'Java Developer', 
@@ -44,15 +38,15 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
   const removeSkill = (s) => onChange('skills', values.skills.filter(x => x !== s));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="flex flex-col gap-5">
 
       {/* Role */}
       <div>
-        {fieldLabel('Job Role / Title')}
+        <FieldLabel text="Job Role / Title" />
         <Select
           allowClear
           showArrow
-          style={{ width: '100%' }}
+          className="w-full h-10"
           placeholder="Select Role (e.g. Software Engineer)"
           value={values.role || undefined}
           onChange={(v) => onChange('role', v)}
@@ -62,11 +56,11 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
       </div>
 
       {/* Experience + Department + Work Mode */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          {fieldLabel('Experience')}
+          <FieldLabel text="Experience" />
           <Select
-            style={{ width: '100%' }}
+            className="w-full"
             placeholder="Years"
             allowClear
             showArrow
@@ -77,9 +71,9 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
           />
         </div>
         <div>
-          {fieldLabel('Department')}
+          <FieldLabel text="Department" />
           <Select
-            style={{ width: '100%' }}
+            className="w-full"
             placeholder="Dept"
             allowClear
             showArrow
@@ -90,9 +84,9 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
           />
         </div>
         <div>
-          {fieldLabel('Work Mode')}
+          <FieldLabel text="Work Mode" />
           <Select
-            style={{ width: '100%' }}
+            className="w-full"
             placeholder="Mode"
             allowClear
             showArrow
@@ -112,20 +106,26 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
 
       {/* Skills */}
       <div>
-        {fieldLabel('Required Skills')}
+        <FieldLabel text="Required Skills" />
 
         {/* Selected tags */}
-        <div style={{ minHeight: 44, padding: '8px 10px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-          {values.skills.length === 0 && <span style={{ color: '#94a3b8', fontSize: '0.82rem' }}>No skills added yet…</span>}
+        <div className="min-h-[44px] p-2.5 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl flex flex-wrap gap-1.5 mb-2">
+          {values.skills.length === 0 && <span className="text-slate-400 text-[0.82rem]">No skills added yet…</span>}
           {values.skills.map(s => (
-            <Tag key={s} closable onClose={() => removeSkill(s)} color="purple" style={{ borderRadius: 20, margin: 0 }}>{s}</Tag>
+            <Tag key={s} closable onClose={() => removeSkill(s)} color="purple" className="!rounded-full !m-0 !px-3">{s}</Tag>
           ))}
         </div>
 
         {/* Quick-add pills */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+        <div className="flex flex-wrap gap-1.5 mb-2">
           {QUICK_SKILLS.filter(s => !values.skills.includes(s)).map(s => (
-            <Tag key={s} onClick={() => addSkill(s)} style={{ cursor: 'pointer', borderRadius: 20, fontSize: '0.76rem', background: '#fff', border: '1px solid #e2e8f0', color: '#64748b', margin: 0 }}>+ {s}</Tag>
+            <Tag 
+              key={s} 
+              onClick={() => addSkill(s)} 
+              className="!m-0 cursor-pointer !rounded-full !text-[0.76rem] !bg-white !border-[#e2e8f0] !text-[#64748b] hover:!border-[#6366f1] transition-colors"
+            >
+              + {s}
+            </Tag>
           ))}
         </div>
 
@@ -136,17 +136,17 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
           onChange={(e) => setCustomSkill(e.target.value)}
           onPressEnter={() => { addSkill(customSkill); setCustomSkill(''); }}
           disabled={loading}
-          style={inputStyle}
+          className="!rounded-xl !h-10 !border-[#e2e8f0] !bg-white !text-slate-800"
         />
       </div>
 
       {/* Generate */}
       <Button
-        type="primary" size="large"
-        icon={<Send size={16} />}
+        type="primary"
         loading={loading}
         onClick={onGenerate}
-        style={{ background: 'linear-gradient(135deg,#6366F1,#22d3ee)', border: 'none', fontWeight: 600, borderRadius: 12, height: 48 }}
+        icon={<Send size={16} />}
+        className="!h-12 !bg-gradient-to-br !from-[#6366f1] !to-[#22d3ee] !border-none !font-semibold !rounded-xl !shadow-md hover:!opacity-90 flex items-center justify-center"
       >
         Generate Job Description
       </Button>

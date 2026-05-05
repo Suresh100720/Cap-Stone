@@ -74,14 +74,15 @@ const CVSummariser = () => {
     localStorage.setItem('cv_chat_history', JSON.stringify(newHistory));
   };
 
-  const deleteHistory = (e, key) => {
-    e.stopPropagation();
+  const deleteHistory = (key) => {
     const newHistory = history.filter(h => h.key !== key);
     setHistory(newHistory);
     localStorage.setItem('cv_chat_history', JSON.stringify(newHistory));
-    if (uploadedKey === key) {
+    if (String(uploadedKey) === String(key)) {
       setUploadedKey(null);
       setMessages([]);
+      setFileName('');
+      antMessage.success('Chat deleted');
     }
   };
 
@@ -150,58 +151,52 @@ const CVSummariser = () => {
   };
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: '#ffffff', margin: '-24px', overflow: 'hidden' }}>
+    <div className="flex h-[calc(100vh-64px)] bg-white -m-6 overflow-hidden">
 
       {/* Sidebar */}
-      <div style={{ width: 280, background: '#f9fafb', display: 'flex', flexDirection: 'column', padding: '16px', borderRight: '1px solid #e5e7eb' }}>
+      <div className="w-[280px] bg-slate-50 flex flex-col p-4 border-r border-slate-200">
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={startNewChat}
-          style={{
-            background: '#ffffff',
-            color: '#111827',
-            border: '1px solid #e5e7eb',
-            textAlign: 'left',
-            height: 44,
-            borderRadius: 12,
-            marginBottom: 24,
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: 14,
-            fontWeight: 600,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-            transition: 'all 0.2s'
-          }}
-          className="sidebar-new-chat"
+          className="!bg-white !text-slate-900 !border-slate-200 !text-left !h-11 !rounded-xl mb-6 flex items-center text-sm font-semibold shadow-sm transition-all duration-200 hover:!bg-white hover:!border-[#7c3aed] hover:!text-[#7c3aed]"
         >
           New Chat
         </Button>
 
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <p style={{ color: '#6b7280', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0 12px 10px' }}>Recent Chats</p>
+        <div className="flex-1 overflow-y-auto flex flex-col gap-1">
+            <p className="text-slate-500 text-[11px] font-bold uppercase tracking-wider m-0">Recent Chats</p>
+            {history.length > 0 && (
+              <Popconfirm title="Clear all history?" onConfirm={() => { 
+                setHistory([]); 
+                localStorage.removeItem('cv_chat_history'); 
+                setMessages([]); 
+                setUploadedKey(null); 
+                setFileName('');
+                antMessage.success('All history cleared');
+              }}>
+                <span className="text-[10px] text-slate-400 hover:text-red-500 cursor-pointer font-bold transition-colors uppercase">Clear All</span>
+              </Popconfirm>
+            )}
+          {history.length === 0 && (
+            <div className="px-3 py-10 text-center">
+              <p className="text-slate-400 text-[12px] italic">No recent chats</p>
+            </div>
+          )}
           {history.map((h) => (
             <div
               key={h.key}
               onClick={() => loadFromHistory(h)}
-              style={{
-                padding: '10px 12px',
-                borderRadius: 10,
-                cursor: 'pointer',
-                background: uploadedKey === h.key ? '#f3f4f6' : 'transparent',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                transition: 'all 0.2s'
-              }}
-              className="history-item-light"
+              className={`p-2.5 px-3 rounded-lg cursor-pointer flex justify-between items-center transition-all duration-200 group ${uploadedKey === h.key ? 'bg-slate-200' : 'bg-transparent hover:bg-slate-200'}`}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflow: 'hidden', flex: 1 }}>
-                <MessageSquare size={15} color={uploadedKey === h.key ? '#7c3aed' : '#9ca3af'} />
-                <span style={{ color: uploadedKey === h.key ? '#111827' : '#4b5563', fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{h.name}</span>
+              <div className="flex items-center gap-2.5 overflow-hidden flex-1">
+                <MessageSquare size={15} className={uploadedKey === h.key ? 'text-[#7c3aed]' : 'text-slate-400'} />
+                <span className={`text-[13px] font-medium truncate ${uploadedKey === h.key ? 'text-slate-900' : 'text-slate-600'}`}>
+                  {h.name}
+                </span>
               </div>
-              <Popconfirm title="Delete?" onConfirm={(e) => deleteHistory(e, h.key)} onCancel={e => e.stopPropagation()}>
-                <DeleteOutlined style={{ color: '#9ca3af', fontSize: 12 }} onClick={e => e.stopPropagation()} className="delete-icon-light" />
+              <Popconfirm title="Delete this chat?" onConfirm={() => deleteHistory(h.key)} onCancel={e => e.stopPropagation()}>
+                <DeleteOutlined className="text-slate-300 hover:text-red-500 transition-colors text-[13px] p-1" onClick={e => e.stopPropagation()} />
               </Popconfirm>
             </div>
           ))}
@@ -209,78 +204,50 @@ const CVSummariser = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', background: '#ffffff' }}>
+      <div className="flex-1 flex flex-col relative bg-white" key={uploadedKey || 'empty'}>
 
         {/* Header */}
-        <div style={{ height: 64, display: 'flex', alignItems: 'center', padding: '0 24px', borderBottom: '1px solid #f3f4f6', justifyContent: 'space-between', background: '#ffffff' }}>
-          <span style={{ color: '#111827', fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em' }}>AI Intelligence</span>
+        <div className="h-16 flex items-center px-6 border-b border-slate-100 justify-between bg-white">
+          <span className="text-slate-900 font-bold text-lg tracking-tight">AI Intelligence</span>
           {uploadedKey && loading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, animation: 'pulse 2s infinite' }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#7c3aed' }}></div>
-              <span style={{ fontSize: 13, color: '#6b7280', fontWeight: 600 }}>Analyzing {fileName}...</span>
+            <div className="flex items-center gap-3 animate-pulse">
+              <div className="w-2 h-2 rounded-full bg-[#7c3aed]"></div>
+              <span className="text-[13px] text-slate-500 font-semibold">Analyzing {fileName}...</span>
             </div>
           )}
         </div>
 
         {/* Messages */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 0', background: '#fafafa' }}>
+        <div className="flex-1 overflow-y-auto py-6 bg-slate-50/50">
           {messages.length === 0 ? (
-            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
-              <div style={{ background: '#ffffff', borderRadius: '24px', width: 80, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, boxShadow: '0 8px 30px rgba(124, 58, 237, 0.12)', border: '1px solid #f3f4f6' }}>
-                <Bot size={40} color="#7c3aed" />
+            <div className="h-full flex flex-col items-center justify-center px-6">
+              <div className="bg-white rounded-3xl w-20 h-20 flex items-center justify-center mb-6 shadow-[0_8px_30px_rgba(124,58,237,0.12)] border border-slate-100">
+                <Bot size={40} className="text-[#7c3aed]" />
               </div>
-              <h1 style={{ color: '#111827', fontSize: 36, fontWeight: 800, marginBottom: 12, textAlign: 'center', letterSpacing: '-0.03em' }}>How can I help?</h1>
-              <p style={{ color: '#6b7280', fontSize: 17, textAlign: 'center', maxWidth: 440, lineHeight: 1.6, fontWeight: 500 }}>Upload a candidate's resume to generate an instant summary and ask deep-dive questions.</p>
+              <h1 className="text-slate-900 text-4xl font-extrabold mb-3 text-center tracking-tight">How can I help?</h1>
+              <p className="text-slate-500 text-lg text-center max-w-[440px] leading-relaxed font-medium">Upload a candidate's resume to generate an instant summary and ask deep-dive questions.</p>
             </div>
           ) : (
-            <div style={{ maxWidth: 880, margin: '0 auto', width: '100%', padding: '0 24px', display: 'flex', flexDirection: 'column' }}>
+            <div className="max-w-[880px] mx-auto w-full px-6 flex flex-col">
               {messages.map((m, i) => (
-                <div key={i} style={{
-                  display: 'flex',
-                  gap: 16,
-                  marginBottom: 32,
-                  flexDirection: m.role === 'user' ? 'row-reverse' : 'row',
-                  alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '85%',
-                  animation: 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}>
-                  <div style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    background: m.role === 'ai' ? '#ffffff' : '#111827',
-                    boxShadow: m.role === 'ai' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
-                    border: m.role === 'ai' ? '1px solid #e5e7eb' : 'none'
-                  }}>
-                    {m.role === 'ai' ? <Bot size={20} color="#7c3aed" /> : <UserOutlined style={{ color: '#fff', fontSize: 16 }} />}
+                <div key={i} className={`flex gap-4 mb-8 max-w-[85%] animate-fade-in ${m.role === 'user' ? 'flex-row-reverse self-end' : 'flex-row self-start'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${m.role === 'ai' ? 'bg-white border border-slate-200' : 'bg-slate-900'}`}>
+                    {m.role === 'ai' ? <Bot size={20} className="text-[#7c3aed]" /> : <UserOutlined className="text-white text-base" />}
                   </div>
-                  <div style={{
-                    color: m.role === 'user' ? '#111827' : '#1f2937',
-                    fontSize: 16,
-                    lineHeight: 1.7,
-                    padding: '12px 20px',
-                    borderRadius: 20,
-                    background: m.role === 'user' ? '#f3f4f6' : '#ffffff',
-                    boxShadow: m.role === 'ai' ? '0 2px 12px rgba(0,0,0,0.03)' : 'none',
-                    border: m.role === 'ai' ? '1px solid #f1f5f9' : 'none',
-                    whiteSpace: 'pre-wrap',
-                    fontWeight: 500
-                  }}>
+                  <div className={`text-base leading-relaxed p-3 px-5 rounded-2xl whitespace-pre-wrap font-medium shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-slate-100 ${m.role === 'user' ? 'text-slate-900 bg-slate-100 border-none shadow-none' : 'text-slate-800 bg-white'}`}>
                     {m.content}
                   </div>
                 </div>
               ))}
               {asking && (
-                <div style={{ display: 'flex', gap: 16, marginBottom: 32, alignSelf: 'flex-start' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 12, background: '#ffffff', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-                    <Bot size={20} color="#7c3aed" />
+                <div className="flex gap-4 mb-8 self-start">
+                  <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                    <Bot size={20} className="text-[#7c3aed]" />
                   </div>
-                  <div className="typing-dots-light" style={{ display: 'flex', gap: 6, padding: '18px 4px' }}>
-                    <div className="dot"></div><div className="dot"></div><div className="dot"></div>
+                  <div className="flex gap-1.5 py-4.5 px-1">
+                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:-0.32s]"></div>
+                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:-0.16s]"></div>
+                    <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></div>
                   </div>
                 </div>
               )}
@@ -290,12 +257,12 @@ const CVSummariser = () => {
         </div>
 
         {/* Input Area */}
-        <div style={{ padding: '0 24px 40px', width: '100%', background: '#fafafa' }}>
-          <div style={{ maxWidth: 880, margin: '0 auto', position: 'relative' }}>
+        <div className="px-6 pb-10 w-full bg-slate-50/50">
+          <div className="max-w-[880px] mx-auto relative">
 
             {/* Suggested Questions */}
             {uploadedKey && !asking && messages.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16, animation: 'fadeIn 0.6s ease' }}>
+              <div className="flex flex-wrap gap-2 mb-4 animate-fade-in">
                 {[
                   "What are the core technical strengths?",
                   "Any experience with Cloud/AWS?",
@@ -306,16 +273,7 @@ const CVSummariser = () => {
                   <Button
                     key={idx}
                     onClick={() => handleAsk(q)}
-                    style={{
-                      height: 34,
-                      borderRadius: 10,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: '#7c3aed',
-                      background: '#ffffff',
-                      border: '1px solid #ddd6fe',
-                      boxShadow: '0 2px 6px rgba(124, 58, 237, 0.05)'
-                    }}
+                    className="!h-8.5 !rounded-xl !text-[12px] font-semibold !text-[#7c3aed] !bg-white !border-slate-200 shadow-sm hover:!border-[#7c3aed]"
                     icon={<Sparkles size={13} />}
                   >
                     {q}
@@ -324,36 +282,17 @@ const CVSummariser = () => {
               </div>
             )}
 
-            <div style={{
-              background: '#ffffff',
-              borderRadius: 28,
-              padding: '8px',
-              border: '1px solid #e5e7eb',
-              boxShadow: '0 12px 30px rgba(0,0,0,0.06)',
-              display: 'flex',
-              alignItems: 'flex-end',
-              gap: '4px'
-            }}>
+            <div className="bg-white rounded-[28px] p-2 border border-slate-200 shadow-[0_12px_30px_rgba(0,0,0,0.06)] flex items-end gap-1">
               <Tooltip title="Upload Resume">
                 <Button
-                  icon={<PaperClipOutlined style={{ fontSize: 20 }} />}
+                  icon={<PaperClipOutlined className="text-xl" />}
                   type="text"
                   onClick={() => fileInputRef.current.click()}
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 20,
-                    color: '#64748b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s'
-                  }}
-                  className="input-action-btn"
+                  className="!w-12 !h-12 !rounded-[20px] !text-slate-500 flex items-center justify-center transition-all duration-200 hover:!bg-slate-100 hover:!text-[#7c3aed]"
                 />
               </Tooltip>
 
-              <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".pdf,.txt" onChange={handleUpload} />
+              <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.txt" onChange={handleUpload} />
 
               <TextArea
                 placeholder={uploadedKey ? "Ask anything about the resume..." : "Upload a resume to begin..."}
@@ -362,58 +301,22 @@ const CVSummariser = () => {
                 onChange={e => setQuestion(e.target.value)}
                 onPressEnter={e => { if (!e.shiftKey) { e.preventDefault(); handleAsk(); } }}
                 disabled={loading || asking}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#1e293b',
-                  fontSize: 17,
-                  boxShadow: 'none',
-                  resize: 'none',
-                  padding: '12px 10px',
-                  flex: 1,
-                  minHeight: '48px',
-                  fontWeight: 500
-                }}
+                className="!bg-transparent !border-none !text-slate-800 !text-[17px] !shadow-none resize-none !py-3 !px-2.5 flex-1 !min-h-[48px] font-medium placeholder:text-slate-400"
               />
 
               <Button
-                icon={<SendOutlined style={{ fontSize: 18 }} />}
+                icon={<SendOutlined className="text-lg" />}
                 type="primary"
                 disabled={!question.trim() || !uploadedKey || asking}
                 onClick={handleAsk}
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 20,
-                  background: (question.trim() && uploadedKey) ? '#7c3aed' : '#f1f5f9',
-                  border: 'none',
-                  color: (question.trim() && uploadedKey) ? '#ffffff' : '#94a3b8',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.3s ease',
-                  boxShadow: (question.trim() && uploadedKey) ? '0 4px 12px rgba(124, 58, 237, 0.3)' : 'none'
-                }}
+                className={`!w-12 !h-12 !rounded-[20px] !border-none flex items-center justify-center transition-all duration-300 ${
+                  (question.trim() && uploadedKey) ? '!bg-[#7c3aed] !text-white shadow-[0_4px_12px_rgba(124,58,237,0.3)]' : '!bg-slate-100 !text-slate-400'
+                }`}
               />
             </div>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .sidebar-new-chat:hover { background: #ffffff !important; border-color: #7c3aed !important; color: #7c3aed !important; }
-        .history-item-light:hover { background: #f1f5f9 !important; }
-        .history-item-light:hover .delete-icon-light { opacity: 1; }
-        .delete-icon-light { opacity: 0; transition: opacity 0.2s; }
-        .typing-dots-light .dot { width: 7px; height: 7px; background: #cbd5e1; borderRadius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-        .typing-dots-light .dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dots-light .dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
-        .input-action-btn:hover { background: #f1f5f9 !important; color: #7c3aed !important; }
-        textarea::placeholder { color: #94a3b8; }
-      `}</style>
     </div>
   );
 };

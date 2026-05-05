@@ -103,7 +103,7 @@ const Jobs = () => {
     if (jobForm.isFieldsTouched()) {
       Modal.confirm({
         title: 'Discard changes?',
-        icon: <WarningOutlined style={{ color: '#f43f5e' }} />,
+        icon: <WarningOutlined className="text-rose-500" />,
         content: 'You have unsaved modifications. Are you sure you want to close?',
         centered: true,
         onOk: () => {
@@ -122,7 +122,7 @@ const Jobs = () => {
     if (applyForm.isFieldsTouched()) {
       Modal.confirm({
         title: 'Discard application?',
-        icon: <WarningOutlined style={{ color: '#f43f5e' }} />,
+        icon: <WarningOutlined className="text-rose-500" />,
         content: 'You have entered information in the application form. Close anyway?',
         centered: true,
         onOk: () => {
@@ -171,37 +171,19 @@ const Jobs = () => {
   };
 
   return (
-    <div style={{ padding: '0 40px 40px 40px', background: 'white', minHeight: 'calc(100vh - 64px)' }}>
+    <div className="px-10 pb-10 bg-white min-h-[calc(100vh-64px)]">
       {/* Sticky Header Row */}
-      <div style={{ 
-        position: 'sticky', 
-        top: 0, 
-        zIndex: 1000, 
-        background: 'white', 
-        padding: '24px 0',
-        marginBottom: '32px',
-        borderBottom: '1px solid #f1f5f9'
-      }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          gap: '24px',
-          background: '#f8fafc',
-          padding: '12px 24px',
-          borderRadius: '16px',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-            <Space size="large" style={{ width: '100%' }}>
-              <Text style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap' }}>
-                <RocketOutlined style={{ color: '#7c3aed', marginRight: '8px' }} /> 
+      <div className="sticky top-0 z-[1000] bg-white py-6 mb-8 border-b border-slate-100">
+        <div className="flex justify-between items-center gap-6 bg-slate-50 p-3 px-6 rounded-2xl border border-slate-200 shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center flex-1">
+            <Space size="large" className="w-full">
+              <Text className="font-bold text-slate-800 whitespace-nowrap">
+                <RocketOutlined className="text-[#7c3aed] mr-2" /> 
                 Smart Match:
               </Text>
               <Select
                 placeholder="Select candidate to find matching jobs"
-                style={{ width: '400px' }}
+                className="w-[400px]"
                 allowClear
                 onChange={(val) => setMatchingCandidate(candidates.find(c => c._id === val))}
               >
@@ -212,7 +194,7 @@ const Jobs = () => {
                 ))}
               </Select>
               {matchingCandidate && (
-                <Tag color="purple" style={{ borderRadius: '6px', padding: '4px 12px', fontWeight: 600, border: 'none', background: '#ede9fe', color: '#7c3aed' }}>
+                <Tag className="!rounded-[6px] !px-3 !py-1 font-semibold !border-none !bg-[#ede9fe] !text-[#7c3aed]">
                   Showing matches for {matchingCandidate.name}
                 </Tag>
               )}
@@ -224,99 +206,68 @@ const Jobs = () => {
             size="large"
             icon={<PlusOutlined />}
             onClick={() => { setEditingId(null); jobForm.resetFields(); setIsModalOpen(true); }}
-            style={{
-              background: '#7c3aed',
-              border: 'none',
-              height: '46px',
-              borderRadius: '10px',
-              fontWeight: 700,
-              padding: '0 24px',
-              boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)'
-            }}
+            className="!bg-[#7c3aed] !border-none !h-[46px] !rounded-[10px] font-bold !px-6 !shadow-[0_4px_12px_rgba(124,58,237,0.3)]"
           >
             Create New Job
           </Button>
         </div>
       </div>
 
-      {error && <Alert message="Error" description={error} type="error" showIcon closable style={{ borderRadius: '12px', marginBottom: '24px' }} />}
+      {error && <Alert message="Error" description={error} type="error" showIcon closable className="!rounded-xl mb-6" />}
 
       {loading && !Array.isArray(data) ? (
-        <div style={{ padding: '80px 0', textAlign: 'center' }}>
+        <div className="py-20 text-center">
           <Spin size="large" />
         </div>
       ) : (
         <Row gutter={[24, 24]}>
           {Array.isArray(filteredJobs) && filteredJobs.length > 0 ? filteredJobs.map((job, index) => {
-            const getStatusScheme = (status, idx) => {
-              const schemes = {
-                'Open': [
-                  { bg: '#f3f0ff', accent: '#7c3aed', border: '#e9e2ff' }, // Purple
-                  { bg: '#f0f9ff', accent: '#0ea5e9', border: '#e0f2fe' }, // Blue
-                  { bg: '#f0fdf4', accent: '#10b981', border: '#dcfce7' }, // Green
-                ],
-                'Closed': { bg: '#fffbeb', accent: '#f59e0b', border: '#fef3c7' }, // Yellow/Orange tint
-                'Actively Hiring': { bg: '#f0f9ff', accent: '#0ea5e9', border: '#e0f2fe' }, // Blue
-                'Urgently Hiring': { bg: '#fff1f2', accent: '#f43f5e', border: '#ffe4e6' }, // Red/Pink
-              };
-
-              if (status === 'Open') {
-                return schemes['Open'][idx % schemes['Open'].length];
-              }
-              return schemes[status] || { bg: '#f8fafc', accent: '#64748b', border: '#f1f5f9' };
-            };
-
-            const scheme = getStatusScheme(job.status, index);
-
             return (
               <Col xs={24} md={12} lg={8} key={job._id}>
                 <Card
                   hoverable
                   bordered={true}
-                  style={{
-                    background: 'transparent',
-                    borderRadius: '24px',
-                    border: '1px solid #f1f5f9',
-                    overflow: 'hidden',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  }}
+                  className="!bg-transparent !rounded-[24px] !border-slate-100 !overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                   styles={{ body: { padding: '24px' } }}
                   actions={[
-                    <Space style={{ fontWeight: 600, color: '#64748b' }} onClick={(e) => { e.stopPropagation(); handleEdit(job); }}>
+                    <Space className="font-semibold text-slate-500" onClick={(e) => { e.stopPropagation(); handleEdit(job); }}>
                       <EditOutlined key="edit" /> Edit
                     </Space>,
                     <Popconfirm title="Delete this job?" onConfirm={() => handleDelete(job._id)} okButtonProps={{ danger: true }} onPopupClick={e => e.stopPropagation()}>
-                      <Space style={{ color: '#f43f5e', fontWeight: 600 }} onClick={e => e.stopPropagation()}>
+                      <Space className="text-rose-500 font-semibold" onClick={e => e.stopPropagation()}>
                         <DeleteOutlined key="delete" /> Delete
                       </Space>
                     </Popconfirm>,
-                    <Space style={{ fontWeight: 600, color: '#7c3aed' }} onClick={(e) => { e.stopPropagation(); setApplyModal({ visible: true, job }); }}>
+                    <Space className="font-semibold text-[#7c3aed]" onClick={(e) => { e.stopPropagation(); setApplyModal({ visible: true, job }); }}>
                       <SendOutlined key="apply" /> Apply
                     </Space>
                   ]}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <Tag color={job.status === 'Open' ? 'green' : job.status === 'Closed' ? 'red' : 'orange'} style={{ borderRadius: '6px', fontWeight: 700 }}>
+                  <div className="flex justify-between items-center mb-4">
+                    <Tag 
+                      color={job.status === 'Open' ? 'green' : job.status === 'Closed' ? 'red' : 'orange'} 
+                      className="!rounded-[6px] font-bold"
+                    >
                       {job.status}
                     </Tag>
-                    <Text type="secondary" style={{ fontSize: '11px', fontWeight: 600 }}>
+                    <Text className="text-slate-400 text-[11px] font-semibold uppercase">
                       {new Date(job.createdAt || Date.now()).toLocaleDateString()}
                     </Text>
                   </div>
 
-                  <Title level={4} style={{ marginBottom: '12px', fontWeight: 800, color: '#1e293b' }}>{job.title}</Title>
+                  <Title level={4} className="!mb-3 font-extrabold text-slate-800 tracking-tight">{job.title}</Title>
                   
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-                    <Text type="secondary" style={{ fontSize: '13px', fontWeight: 600 }}>
-                      <BlockOutlined style={{ marginRight: '8px' }} />
+                  <div className="flex flex-col gap-2 w-full">
+                    <Text className="text-slate-500 text-[13px] font-semibold flex items-center">
+                      <BlockOutlined className="mr-2 opacity-70" />
                       {job.department}
                     </Text>
-                    <Text type="secondary" style={{ fontSize: '13px', fontWeight: 600 }}>
-                      <EnvironmentOutlined style={{ marginRight: '8px' }} />
+                    <Text className="text-slate-500 text-[13px] font-semibold flex items-center">
+                      <EnvironmentOutlined className="mr-2 opacity-70" />
                       {job.location}
                     </Text>
-                    <div style={{ marginTop: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.6)', borderRadius: '100px', display: 'inline-block', alignSelf: 'flex-start' }}>
-                      <Text strong style={{ fontSize: '13px' }}>{job.openings} Openings</Text>
+                    <div className="mt-2 px-4 py-2 bg-slate-50 rounded-full inline-block self-start border border-slate-100">
+                      <Text className="text-[13px] font-bold text-slate-700">{job.openings} Openings</Text>
                     </div>
                   </div>
                 </Card>
@@ -324,8 +275,8 @@ const Jobs = () => {
             );
           }) : (
             <Col span={24}>
-              <div style={{ padding: '60px 0', textAlign: 'center', background: '#fff', borderRadius: '20px', border: '1px dashed #cbd5e1' }}>
-                <Title level={4} style={{ color: '#94a3b8' }}>No active job listings</Title>
+              <div className="py-15 text-center bg-white rounded-[20px] border border-dashed border-slate-300">
+                <Title level={4} className="!text-slate-400 font-bold m-0">No active job listings</Title>
               </div>
             </Col>
           )}
@@ -334,7 +285,7 @@ const Jobs = () => {
 
       {/* Create/Edit Modal */}
       <Modal
-        title={<span style={{ fontWeight: 800 }}>{editingId ? "Update Job Listing" : "Create New Job"}</span>}
+        title={<span className="font-extrabold text-lg text-slate-800">{editingId ? "Update Job Listing" : "Create New Job"}</span>}
         open={isModalOpen}
         onCancel={handleJobCancel}
         onOk={() => jobForm.submit()}
@@ -342,42 +293,43 @@ const Jobs = () => {
         centered
         okText={editingId ? "Update" : "Create Job"}
         width={500}
+        okButtonProps={{ className: "!bg-[#7c3aed] !h-10 font-bold rounded-lg" }}
+        cancelButtonProps={{ className: "!h-10 font-bold rounded-lg" }}
       >
-        <Form form={jobForm} layout="vertical" onFinish={handleCreateOrUpdate} style={{ marginTop: '20px' }}>
-          <Form.Item name="title" label="Job Title" rules={[{ required: true, message: 'Required' }]}>
-            <Select placeholder="Select Role">
+        <Form form={jobForm} layout="vertical" onFinish={handleCreateOrUpdate} className="mt-5">
+          <Form.Item name="title" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Job Title</span>} rules={[{ required: true, message: 'Required' }]}>
+            <Select placeholder="Select Role" className="!h-10">
               {titleOptions.map(opt => <Select.Option key={opt} value={opt}>{opt}</Select.Option>)}
             </Select>
           </Form.Item>
-          <Form.Item name="department" label="Department" rules={[{ required: true, message: 'Required' }]}>
-            <Select placeholder="Select Dept">
+          <Form.Item name="department" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Department</span>} rules={[{ required: true, message: 'Required' }]}>
+            <Select placeholder="Select Dept" className="!h-10">
               {deptOptions.map(opt => <Select.Option key={opt} value={opt}>{opt}</Select.Option>)}
             </Select>
           </Form.Item>
-          <Form.Item name="skills" label="Key Skills (Tags)">
-            <Select mode="tags" placeholder="Select or type skills" style={{ width: '100%' }} tokenSeparators={[',']}>
+          <Form.Item name="skills" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Key Skills (Tags)</span>}>
+            <Select mode="tags" placeholder="Select or type skills" className="w-full" tokenSeparators={[',']}>
               {skillOptions.map(skill => <Select.Option key={skill} value={skill}>{skill}</Select.Option>)}
             </Select>
           </Form.Item>
-          <Form.Item name="location" label="Location">
-            <Input placeholder="e.g. Remote / New York" />
+          <Form.Item name="location" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Location</span>}>
+            <Input placeholder="e.g. Remote / New York" className="!h-10 rounded-lg" />
           </Form.Item>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="openings" label="Openings" initialValue={1}>
-                <InputNumber min={1} style={{ width: '100%' }} />
+              <Form.Item name="openings" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Openings</span>} initialValue={1}>
+                <InputNumber min={1} className="w-full !h-10 !rounded-lg pt-1" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="status" label="Status" initialValue="Open">
-                <Select>
+              <Form.Item name="status" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Status</span>} initialValue="Open">
+                <Select className="!h-10">
                   <Select.Option value="Open">Open</Select.Option>
                   <Select.Option value="Closed">Closed</Select.Option>
                   <Select.Option value="Actively Hiring">Actively Hiring</Select.Option>
                   <Select.Option value="Urgently Hiring">Urgently Hiring</Select.Option>
                 </Select>
               </Form.Item>
-
             </Col>
           </Row>
         </Form>
@@ -385,25 +337,27 @@ const Jobs = () => {
 
       {/* Application Form Modal */}
       <Modal
-        title={<span style={{ fontWeight: 800 }}>Apply for {applyModal.job?.title}</span>}
+        title={<span className="font-extrabold text-lg text-slate-800">Apply for {applyModal.job?.title}</span>}
         open={applyModal.visible}
         onCancel={handleApplyCancel}
         onOk={() => applyForm.submit()}
         confirmLoading={loading}
         centered
-        okText="Submit"
+        okText="Submit Application"
         width={400}
+        okButtonProps={{ className: "!bg-[#7c3aed] !h-10 font-bold rounded-lg" }}
+        cancelButtonProps={{ className: "!h-10 font-bold rounded-lg" }}
       >
         {applyModal.job && (
-          <Form form={applyForm} layout="vertical" onFinish={handleApplySubmit} style={{ marginTop: '20px' }}>
-            <Form.Item name="name" label="Full Name" rules={[{ required: true, message: 'Required' }]}>
-              <Input placeholder="John Doe" />
+          <Form form={applyForm} layout="vertical" onFinish={handleApplySubmit} className="mt-5">
+            <Form.Item name="name" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Full Name</span>} rules={[{ required: true, message: 'Required' }]}>
+              <Input placeholder="John Doe" className="!h-10 rounded-lg" />
             </Form.Item>
-            <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Required' }]}>
-              <Input placeholder="john@example.com" />
+            <Form.Item name="email" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Email</span>} rules={[{ required: true, type: 'email', message: 'Required' }]}>
+              <Input placeholder="john@example.com" className="!h-10 rounded-lg" />
             </Form.Item>
-            <Form.Item name="phone" label="Phone">
-              <Input placeholder="+1 234..." />
+            <Form.Item name="phone" label={<span className="font-bold text-slate-600 text-[11px] uppercase">Phone</span>}>
+              <Input placeholder="+1 234..." className="!h-10 rounded-lg" />
             </Form.Item>
           </Form>
         )}

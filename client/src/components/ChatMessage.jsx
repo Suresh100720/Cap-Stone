@@ -5,33 +5,26 @@ import ReactMarkdown from 'react-markdown';
 const ChatMessage = ({ role, content }) => {
   const isAI = role === 'ai';
   return (
-    <div style={{ display: 'flex', gap: 12, padding: '12px 0', flexDirection: isAI ? 'row' : 'row-reverse' }}>
+    <div className={`flex gap-3 py-3 ${isAI ? 'flex-row' : 'flex-row-reverse'}`}>
       {/* Avatar */}
-      <div style={{
-        width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-        background: isAI ? 'linear-gradient(135deg,#6366F1,#8b5cf6)' : 'linear-gradient(135deg,#22d3ee,#0284c7)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+      <div className={`w-[34px] h-[34px] rounded-full shrink-0 flex items-center justify-center ${
+        isAI ? 'bg-gradient-to-br from-[#6366F1] to-[#8b5cf6]' : 'bg-gradient-to-br from-[#22d3ee] to-[#0284c7]'
+      }`}>
         {isAI ? <Bot size={17} color="#fff" /> : <User size={17} color="#fff" />}
       </div>
 
-      {/* Bubble */}
-      <div style={{ maxWidth: '78%' }}>
-        <div style={{
-          color: isAI ? 'rgba(99,102,241,0.7)' : 'rgba(34,211,238,0.7)',
-          fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em',
-          fontWeight: 700, marginBottom: 4,
-          textAlign: isAI ? 'left' : 'right',
-        }}>
+      {/* Bubble Container */}
+      <div className="max-w-[78%]">
+        <div className={`text-[0.65rem] uppercase tracking-widest font-bold mb-1 ${
+          isAI ? 'text-[#6366f1]/70 text-left' : 'text-[#22d3ee]/70 text-right'
+        }`}>
           {isAI ? 'AI Recruiter' : 'You'}
         </div>
-        <div style={{
-          padding: '12px 16px',
-          borderRadius: isAI ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
-          background: isAI ? 'rgba(99,102,241,0.06)' : 'rgba(34,211,238,0.06)',
-          border: `1px solid ${isAI ? 'rgba(99,102,241,0.1)' : 'rgba(34,211,238,0.1)'}`,
-          color: '#1e293b', whiteSpace: 'pre-wrap', lineHeight: 1.75, fontSize: '0.91rem',
-        }}>
+        <div className={`p-3 px-4 text-slate-800 whitespace-pre-wrap leading-relaxed text-[0.91rem] shadow-sm ${
+          isAI 
+            ? 'rounded-tl-none rounded-2xl bg-[#6366f1]/[0.06] border border-[#6366f1]/10' 
+            : 'rounded-tr-none rounded-2xl bg-[#22d3ee]/[0.06] border border-[#22d3ee]/10'
+        }`}>
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       </div>

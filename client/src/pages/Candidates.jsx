@@ -110,18 +110,22 @@ const Candidates = () => {
   if (loading && candidates.length === 0) return <LoadingSpinner />;
 
   return (
-    <div style={{ padding: '40px', background: 'white', minHeight: 'calc(100vh - 64px)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+    <div className="p-10 bg-white min-h-[calc(100vh-64px)]">
+      {/* Action Header */}
+      <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
         <Space size="middle" wrap>
           <Input.Search
             placeholder="Search by name, skills, email..."
             enterButton={
-              <Button type="primary" style={{ height: '42px', borderRadius: '0 10px 10px 0', background: '#7c3aed', border: 'none', fontWeight: 600 }}>
+              <Button 
+                type="primary" 
+                className="!h-[42px] !rounded-r-[10px] !rounded-l-none !bg-[#7c3aed] !border-none font-semibold"
+              >
                 SEARCH
               </Button>
             }
             onSearch={handleSearch}
-            style={{ width: 400 }}
+            className="w-[400px]"
             size="large"
             value={searchTerm}
             onChange={(e) => {
@@ -131,7 +135,7 @@ const Candidates = () => {
             allowClear
           />
           {selectedRows.length > 0 && (
-            <span style={{ fontSize: '11px', fontWeight: 700, background: "#ede9fe", color: "#6366f1", padding: "4px 12px", borderRadius: '20px', border: '1px solid #ddd6fe' }}>
+            <span className="text-[11px] font-bold bg-[#ede9fe] text-[#6366f1] px-3 py-1 rounded-full border border-[#ddd6fe]">
               {selectedRows.length} SELECTED
             </span>
           )}
@@ -143,7 +147,7 @@ const Candidates = () => {
               <Button
                 icon={<DownloadOutlined />}
                 onClick={() => gridRef.current.api.exportDataAsCsv({ onlySelected: true })}
-                style={{ borderRadius: '8px', height: '42px', fontWeight: 600, color: '#16a34a', borderColor: '#16a34a' }}
+                className="!rounded-lg !h-[42px] font-semibold !text-[#16a34a] !border-[#16a34a]"
               >
                 Export ({selectedRows.length})
               </Button>
@@ -151,7 +155,7 @@ const Candidates = () => {
                 danger
                 icon={<DeleteFilled />}
                 onClick={handleBulkDelete}
-                style={{ borderRadius: '8px', height: '42px', fontWeight: 600 }}
+                className="!rounded-lg !h-[42px] font-semibold"
               >
                 Delete Selected
               </Button>
@@ -161,22 +165,15 @@ const Candidates = () => {
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => { setEditingId(null); form.resetFields(); setIsModalOpen(true); }}
-            style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              border: 'none',
-              borderRadius: '10px',
-              height: '42px',
-              fontWeight: 700,
-              padding: '0 24px',
-              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)'
-            }}
+            className="!bg-gradient-to-br !from-[#6366f1] !to-[#8b5cf6] !border-none !rounded-[10px] !h-[42px] font-bold !px-6 !shadow-[0_4px_12px_rgba(99, 102, 241, 0.35)]"
           >
             Add Candidate
           </Button>
         </Space>
       </div>
 
-      <div style={{ background: 'white', borderRadius: '24px', padding: '24px', border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+      {/* Table Section */}
+      <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
         <CandidateTable
           ref={gridRef}
           rowData={candidates}

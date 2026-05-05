@@ -8,40 +8,34 @@ const StatCard = ({ title, value, icon, backgroundColor, iconColor, onClick }) =
     <Card
       onClick={onClick}
       hoverable
-      style={{
-        borderRadius: '16px',
-        border: 'none',
-        background: backgroundColor || '#fff',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-        transition: 'transform 0.2s'
+      className="!rounded-2xl !border-none !shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:scale-[1.02] transition-transform duration-200"
+      style={{ background: backgroundColor || '#fff' }}
+      styles={{ 
+        body: { 
+          padding: '2.5rem 2rem', 
+          minHeight: '160px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'center' 
+        } 
       }}
-      styles={{ body: { padding: '40px 32px', minHeight: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="flex justify-between items-start">
         <div>
-          <Text type="secondary" style={{ color: 'rgba(0,0,0,0.45)', fontWeight: 600, fontSize: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <Text className="!text-black/45 font-semibold text-base uppercase tracking-wider block">
             {title}
           </Text>
-          <Title level={2} style={{ margin: '12px 0 0 0', fontWeight: 900, fontSize: '36px', color: '#1e293b' }}>
+          <Title level={2} className="!text-[#1e293b] !font-black !text-[36px] !m-0 !mt-3">
             {value}
           </Title>
         </div>
-        <div style={{
-          background: 'white',
-          width: '56px',
-          height: '56px',
-          borderRadius: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '28px',
-          color: iconColor || '#7c3aed',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
-        }}>
+        <div 
+          className="bg-white w-14 h-14 rounded-2xl flex items-center justify-center text-[28px] shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+          style={{ color: iconColor || '#7c3aed' }}
+        >
           {icon}
         </div>
       </div>
-
     </Card>
   );
 };

@@ -6,25 +6,34 @@ const { Text } = Typography;
 
 const PromptDebugger = ({ systemPrompt, userPrompt, rawResponse }) => {
   return (
-    <div style={{ background: '#f8fafc', borderRadius: 18, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-      <div style={{ padding: '12px 20px', background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-        <Text style={{ color: '#64748b', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
+    <div className="bg-[#f8fafc] rounded-[18px] border border-[#e2e8f0] overflow-hidden shadow-sm">
+      <div className="p-3 px-5 bg-white border-b border-[#e2e8f0]">
+        <Text className="!text-[#64748b] !text-[11px] !font-extrabold !uppercase !tracking-[1px] block">
           Prompt Debugger
         </Text>
       </div>
-      <Collapse ghost>
-        <Panel header={<span style={{ color: '#1e293b', fontSize: '13px', fontWeight: 600 }}>System Prompt</span>} key="1">
-          <pre style={{ color: '#475569', background: '#fff', padding: 16, borderRadius: 12, fontSize: '12px', whiteSpace: 'pre-wrap', border: '1px solid #e2e8f0' }}>
+      <Collapse ghost accordion className="custom-collapse">
+        <Panel 
+          header={<span className="text-[#1e293b] text-[13px] font-semibold">System Prompt</span>} 
+          key="1"
+        >
+          <pre className="text-slate-600 bg-white p-4 rounded-xl text-[12px] whitespace-pre-wrap border border-[#e2e8f0] max-h-[300px] overflow-y-auto">
             {systemPrompt}
           </pre>
         </Panel>
-        <Panel header={<span style={{ color: '#1e293b', fontSize: '13px', fontWeight: 600 }}>User Prompt (Payload)</span>} key="2">
-          <pre style={{ color: '#475569', background: '#fff', padding: 16, borderRadius: 12, fontSize: '12px', whiteSpace: 'pre-wrap', border: '1px solid #e2e8f0' }}>
+        <Panel 
+          header={<span className="text-[#1e293b] text-[13px] font-semibold">User Prompt (Payload)</span>} 
+          key="2"
+        >
+          <pre className="text-slate-600 bg-white p-4 rounded-xl text-[12px] whitespace-pre-wrap border border-[#e2e8f0] max-h-[300px] overflow-y-auto">
             {userPrompt}
           </pre>
         </Panel>
-        <Panel header={<span style={{ color: '#1e293b', fontSize: '13px', fontWeight: 600 }}>Raw AI Response</span>} key="3">
-          <pre style={{ color: '#475569', background: '#fff', padding: 16, borderRadius: 12, fontSize: '12px', whiteSpace: 'pre-wrap', border: '1px solid #e2e8f0' }}>
+        <Panel 
+          header={<span className="text-[#1e293b] text-[13px] font-semibold">Raw AI Response</span>} 
+          key="3"
+        >
+          <pre className="text-slate-600 bg-white p-4 rounded-xl text-[12px] whitespace-pre-wrap border border-[#e2e8f0] max-h-[300px] overflow-y-auto">
             {JSON.stringify(rawResponse, null, 2)}
           </pre>
         </Panel>
