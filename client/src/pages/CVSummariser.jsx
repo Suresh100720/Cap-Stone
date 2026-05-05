@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Spin, Tag, Button, Input, Tooltip, App as AntApp, Popconfirm, Avatar } from 'antd';
+import { Spin, Tag, Button, Input, Tooltip, App as AntApp, Popconfirm, Avatar, Drawer } from 'antd';
 import {
   FileTextOutlined,
   ReloadOutlined,
@@ -9,7 +9,8 @@ import {
   SendOutlined,
   PaperClipOutlined,
   RobotOutlined,
-  UserOutlined
+  UserOutlined,
+  HistoryOutlined
 } from '@ant-design/icons';
 import { Bot, MessageSquare, History, Sparkles } from 'lucide-react';
 import axios from 'axios';
@@ -54,6 +55,7 @@ const CVSummariser = () => {
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState('');
   const [asking, setAsking] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const [history, setHistory] = useState(() => {
     try {
@@ -90,6 +92,7 @@ const CVSummariser = () => {
     setUploadedKey(item.key);
     setFileName(item.name);
     setMessages(item.messages || []);
+    setDrawerVisible(false);
   };
 
   const startNewChat = () => {
@@ -97,6 +100,7 @@ const CVSummariser = () => {
     setFileName('');
     setMessages([]);
     setQuestion('');
+    setDrawerVisible(false);
   };
 
   const handleUpload = async (e) => {
@@ -150,101 +154,131 @@ const CVSummariser = () => {
     } finally { setAsking(false); }
   };
 
-  return (
-    <div className="flex h-[calc(100vh-64px)] bg-white -m-6 overflow-hidden">
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={startNewChat}
+        className="!bg-white !text-slate-900 !border-slate-200 !text-left !h-11 !rounded-xl mb-6 flex items-center text-sm font-semibold shadow-sm transition-all duration-200 hover:!bg-white hover:!border-[#7c3aed] hover:!text-[#7c3aed]"
+      >
+        New Chat
+      </Button>
 
-      {/* Sidebar */}
-      <div className="w-[280px] bg-slate-50 flex flex-col p-4 border-r border-slate-200">
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={startNewChat}
-          className="!bg-white !text-slate-900 !border-slate-200 !text-left !h-11 !rounded-xl mb-6 flex items-center text-sm font-semibold shadow-sm transition-all duration-200 hover:!bg-white hover:!border-[#7c3aed] hover:!text-[#7c3aed]"
-        >
-          New Chat
-        </Button>
-
-        <div className="flex-1 overflow-y-auto flex flex-col gap-1">
-            <p className="text-slate-500 text-[11px] font-bold uppercase tracking-wider m-0">Recent Chats</p>
-            {history.length > 0 && (
-              <Popconfirm title="Clear all history?" onConfirm={() => { 
-                setHistory([]); 
-                localStorage.removeItem('cv_chat_history'); 
-                setMessages([]); 
-                setUploadedKey(null); 
-                setFileName('');
-                antMessage.success('All history cleared');
-              }}>
-                <span className="text-[10px] text-slate-400 hover:text-red-500 cursor-pointer font-bold transition-colors uppercase">Clear All</span>
-              </Popconfirm>
-            )}
-          {history.length === 0 && (
-            <div className="px-3 py-10 text-center">
-              <p className="text-slate-400 text-[12px] italic">No recent chats</p>
-            </div>
+      <div className="flex-1 overflow-y-auto flex flex-col gap-1 custom-scrollbar">
+        <div className="flex justify-between items-center px-3 pb-2.5">
+          <p className="text-slate-500 text-[11px] font-bold uppercase tracking-wider m-0">Recent Chats</p>
+          {history.length > 0 && (
+            <Popconfirm title="Clear all history?" onConfirm={() => { 
+              setHistory([]); 
+              localStorage.removeItem('cv_chat_history'); 
+              setMessages([]); 
+              setUploadedKey(null); 
+              setFileName('');
+              antMessage.success('All history cleared');
+            }}>
+              <span className="text-[10px] text-slate-400 hover:text-red-500 cursor-pointer font-bold transition-colors uppercase">Clear All</span>
+            </Popconfirm>
           )}
-          {history.map((h) => (
-            <div
-              key={h.key}
-              onClick={() => loadFromHistory(h)}
-              className={`p-2.5 px-3 rounded-lg cursor-pointer flex justify-between items-center transition-all duration-200 group ${uploadedKey === h.key ? 'bg-slate-200' : 'bg-transparent hover:bg-slate-200'}`}
-            >
-              <div className="flex items-center gap-2.5 overflow-hidden flex-1">
-                <MessageSquare size={15} className={uploadedKey === h.key ? 'text-[#7c3aed]' : 'text-slate-400'} />
-                <span className={`text-[13px] font-medium truncate ${uploadedKey === h.key ? 'text-slate-900' : 'text-slate-600'}`}>
-                  {h.name}
-                </span>
-              </div>
-              <Popconfirm title="Delete this chat?" onConfirm={() => deleteHistory(h.key)} onCancel={e => e.stopPropagation()}>
-                <DeleteOutlined className="text-slate-300 hover:text-red-500 transition-colors text-[13px] p-1" onClick={e => e.stopPropagation()} />
-              </Popconfirm>
-            </div>
-          ))}
         </div>
+        {history.length === 0 && (
+          <div className="px-3 py-10 text-center">
+            <p className="text-slate-400 text-[12px] italic">No recent chats</p>
+          </div>
+        )}
+        {history.map((h) => (
+          <div
+            key={h.key}
+            onClick={() => loadFromHistory(h)}
+            className={`p-2.5 px-3 rounded-lg cursor-pointer flex justify-between items-center transition-all duration-200 group ${uploadedKey === h.key ? 'bg-slate-200' : 'bg-transparent hover:bg-slate-200'}`}
+          >
+            <div className="flex items-center gap-2.5 overflow-hidden flex-1">
+              <MessageSquare size={15} className={uploadedKey === h.key ? 'text-[#7c3aed]' : 'text-slate-400'} />
+              <span className={`text-[13px] font-medium truncate ${uploadedKey === h.key ? 'text-slate-900' : 'text-slate-600'}`}>
+                {h.name}
+              </span>
+            </div>
+            <Popconfirm title="Delete this chat?" onConfirm={() => deleteHistory(h.key)} onCancel={e => e.stopPropagation()}>
+              <DeleteOutlined className="text-slate-300 hover:text-red-500 transition-colors text-[13px] p-1" onClick={e => e.stopPropagation()} />
+            </Popconfirm>
+          </div>
+        ))}
       </div>
+    </div>
+  );
+
+  return (
+    <div className="flex h-[calc(100vh-64px)] bg-white -m-6 overflow-hidden relative">
+      
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:flex w-[280px] bg-slate-50 flex-col p-4 border-r border-slate-200">
+        <SidebarContent />
+      </div>
+
+      {/* Mobile Sidebar (Drawer) */}
+      <Drawer
+        title="Recent Chats"
+        placement="left"
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        width={300}
+        styles={{ body: { padding: '16px', backgroundColor: '#f8fafc' } }}
+      >
+        <SidebarContent />
+      </Drawer>
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col relative bg-white" key={uploadedKey || 'empty'}>
 
         {/* Header */}
-        <div className="h-16 flex items-center px-6 border-b border-slate-100 justify-between bg-white">
-          <span className="text-slate-900 font-bold text-lg tracking-tight">AI Intelligence</span>
+        <div className="h-16 flex items-center px-4 sm:px-6 border-b border-slate-100 justify-between bg-white">
+          <div className="flex items-center gap-3">
+            <Button 
+              type="text" 
+              icon={<HistoryOutlined />} 
+              onClick={() => setDrawerVisible(true)}
+              className="lg:hidden !flex items-center justify-center !text-slate-500"
+            />
+            <span className="text-slate-900 font-bold text-base sm:text-lg tracking-tight">AI Intelligence</span>
+          </div>
           {uploadedKey && loading && (
             <div className="flex items-center gap-3 animate-pulse">
               <div className="w-2 h-2 rounded-full bg-[#7c3aed]"></div>
-              <span className="text-[13px] text-slate-500 font-semibold">Analyzing {fileName}...</span>
+              <span className="text-[11px] sm:text-[13px] text-slate-500 font-semibold truncate max-w-[100px] sm:max-w-none">
+                Analyzing...
+              </span>
             </div>
           )}
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto py-6 bg-slate-50/50">
+        <div className="flex-1 overflow-y-auto py-6 bg-slate-50/50 custom-scrollbar">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-6">
-              <div className="bg-white rounded-3xl w-20 h-20 flex items-center justify-center mb-6 shadow-[0_8px_30px_rgba(124,58,237,0.12)] border border-slate-100">
-                <Bot size={40} className="text-[#7c3aed]" />
+              <div className="bg-white rounded-3xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mb-6 shadow-[0_8px_30px_rgba(124,58,237,0.12)] border border-slate-100">
+                <Bot size={32} className="text-[#7c3aed]" />
               </div>
-              <h1 className="text-slate-900 text-4xl font-extrabold mb-3 text-center tracking-tight">How can I help?</h1>
-              <p className="text-slate-500 text-lg text-center max-w-[440px] leading-relaxed font-medium">Upload a candidate's resume to generate an instant summary and ask deep-dive questions.</p>
+              <h1 className="text-slate-900 text-2xl sm:text-4xl font-extrabold mb-3 text-center tracking-tight">How can I help?</h1>
+              <p className="text-slate-500 text-base sm:text-lg text-center max-w-[440px] leading-relaxed font-medium">Upload a candidate's resume to generate an instant summary and ask questions.</p>
             </div>
           ) : (
-            <div className="max-w-[880px] mx-auto w-full px-6 flex flex-col">
+            <div className="max-w-[880px] mx-auto w-full px-4 sm:px-6 flex flex-col">
               {messages.map((m, i) => (
-                <div key={i} className={`flex gap-4 mb-8 max-w-[85%] animate-fade-in ${m.role === 'user' ? 'flex-row-reverse self-end' : 'flex-row self-start'}`}>
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${m.role === 'ai' ? 'bg-white border border-slate-200' : 'bg-slate-900'}`}>
-                    {m.role === 'ai' ? <Bot size={20} className="text-[#7c3aed]" /> : <UserOutlined className="text-white text-base" />}
+                <div key={i} className={`flex gap-3 sm:gap-4 mb-6 sm:mb-8 max-w-[95%] sm:max-w-[85%] animate-fade-in ${m.role === 'user' ? 'flex-row-reverse self-end' : 'flex-row self-start'}`}>
+                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${m.role === 'ai' ? 'bg-white border border-slate-200' : 'bg-slate-900'}`}>
+                    {m.role === 'ai' ? <Bot size={18} className="text-[#7c3aed]" /> : <UserOutlined className="text-white text-sm" />}
                   </div>
-                  <div className={`text-base leading-relaxed p-3 px-5 rounded-2xl whitespace-pre-wrap font-medium shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-slate-100 ${m.role === 'user' ? 'text-slate-900 bg-slate-100 border-none shadow-none' : 'text-slate-800 bg-white'}`}>
+                  <div className={`text-[14px] sm:text-base leading-relaxed p-3 px-4 sm:px-5 rounded-2xl whitespace-pre-wrap font-medium shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-slate-100 ${m.role === 'user' ? 'text-slate-900 bg-slate-100 border-none shadow-none' : 'text-slate-800 bg-white'}`}>
                     {m.content}
                   </div>
                 </div>
               ))}
               {asking && (
                 <div className="flex gap-4 mb-8 self-start">
-                  <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-                    <Bot size={20} className="text-[#7c3aed]" />
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                    <Bot size={18} className="text-[#7c3aed]" />
                   </div>
-                  <div className="flex gap-1.5 py-4.5 px-1">
+                  <div className="flex gap-1.5 py-4 px-1">
                     <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:-0.32s]"></div>
                     <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:-0.16s]"></div>
                     <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></div>
@@ -257,24 +291,23 @@ const CVSummariser = () => {
         </div>
 
         {/* Input Area */}
-        <div className="px-6 pb-10 w-full bg-slate-50/50">
+        <div className="px-4 sm:px-6 pb-6 sm:pb-10 w-full bg-slate-50/50">
           <div className="max-w-[880px] mx-auto relative">
 
             {/* Suggested Questions */}
             {uploadedKey && !asking && messages.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4 animate-fade-in">
+              <div className="flex flex-wrap gap-2 mb-4 animate-fade-in overflow-x-auto pb-2 no-scrollbar">
                 {[
                   "What are the core technical strengths?",
                   "Any experience with Cloud/AWS?",
                   "Identify potential red flags.",
-                  "Is this candidate fit for a Senior role?",
                   "Summarize leadership experience."
                 ].map((q, idx) => (
                   <Button
                     key={idx}
                     onClick={() => handleAsk(q)}
-                    className="!h-8.5 !rounded-xl !text-[12px] font-semibold !text-[#7c3aed] !bg-white !border-slate-200 shadow-sm hover:!border-[#7c3aed]"
-                    icon={<Sparkles size={13} />}
+                    className="!h-8 !rounded-xl !text-[11px] font-semibold !text-[#7c3aed] !bg-white !border-slate-200 shadow-sm hover:!border-[#7c3aed] whitespace-nowrap"
+                    icon={<Sparkles size={12} />}
                   >
                     {q}
                   </Button>
@@ -282,34 +315,34 @@ const CVSummariser = () => {
               </div>
             )}
 
-            <div className="bg-white rounded-[28px] p-2 border border-slate-200 shadow-[0_12px_30px_rgba(0,0,0,0.06)] flex items-end gap-1">
+            <div className="bg-white rounded-[24px] sm:rounded-[28px] p-1.5 sm:p-2 border border-slate-200 shadow-[0_12px_30px_rgba(0,0,0,0.06)] flex items-end gap-1">
               <Tooltip title="Upload Resume">
                 <Button
-                  icon={<PaperClipOutlined className="text-xl" />}
+                  icon={<PaperClipOutlined className="text-lg" />}
                   type="text"
                   onClick={() => fileInputRef.current.click()}
-                  className="!w-12 !h-12 !rounded-[20px] !text-slate-500 flex items-center justify-center transition-all duration-200 hover:!bg-slate-100 hover:!text-[#7c3aed]"
+                  className="!w-10 !h-10 sm:!w-12 sm:!h-12 !rounded-[16px] sm:!rounded-[20px] !text-slate-500 flex items-center justify-center transition-all duration-200 hover:!bg-slate-100 hover:!text-[#7c3aed]"
                 />
               </Tooltip>
 
               <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.txt" onChange={handleUpload} />
 
               <TextArea
-                placeholder={uploadedKey ? "Ask anything about the resume..." : "Upload a resume to begin..."}
-                autoSize={{ minRows: 1, maxRows: 10 }}
+                placeholder={uploadedKey ? "Ask anything..." : "Upload resume..."}
+                autoSize={{ minRows: 1, maxRows: 8 }}
                 value={question}
                 onChange={e => setQuestion(e.target.value)}
-                onPressEnter={e => { if (!e.shiftKey) { e.preventDefault(); handleAsk(); } }}
+                onPressEnter={e => { if (!e.shiftKey && window.innerWidth > 768) { e.preventDefault(); handleAsk(); } }}
                 disabled={loading || asking}
-                className="!bg-transparent !border-none !text-slate-800 !text-[17px] !shadow-none resize-none !py-3 !px-2.5 flex-1 !min-h-[48px] font-medium placeholder:text-slate-400"
+                className="!bg-transparent !border-none !text-slate-800 !text-[15px] sm:!text-[17px] !shadow-none resize-none !py-2.5 sm:!py-3 !px-2 flex-1 !min-h-[40px] font-medium placeholder:text-slate-400"
               />
 
               <Button
-                icon={<SendOutlined className="text-lg" />}
+                icon={<SendOutlined className="text-base sm:text-lg" />}
                 type="primary"
                 disabled={!question.trim() || !uploadedKey || asking}
                 onClick={handleAsk}
-                className={`!w-12 !h-12 !rounded-[20px] !border-none flex items-center justify-center transition-all duration-300 ${
+                className={`!w-10 !h-10 sm:!w-12 sm:!h-12 !rounded-[16px] sm:!rounded-[20px] !border-none flex items-center justify-center transition-all duration-300 ${
                   (question.trim() && uploadedKey) ? '!bg-[#7c3aed] !text-white shadow-[0_4px_12px_rgba(124,58,237,0.3)]' : '!bg-slate-100 !text-slate-400'
                 }`}
               />

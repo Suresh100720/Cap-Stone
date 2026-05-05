@@ -67,8 +67,8 @@ const Register = () => {
       </div>
 
       {/* Right Side: Register Form */}
-      <div className="flex-1 flex items-center justify-center p-10 z-10">
-        <div className="w-full max-w-[420px] bg-white/[0.02] p-12 rounded-[32px] border border-white/5 backdrop-blur-[20px] shadow-[0_24px_48px_rgba(0,0,0,0.4)]">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-10 z-10">
+        <div className="w-full max-w-[420px] bg-white/[0.02] p-6 sm:p-12 rounded-[24px] sm:rounded-[32px] border border-white/5 backdrop-blur-[20px] shadow-[0_24px_48px_rgba(0,0,0,0.4)]">
           <div className="mb-10">
             <Title level={2} className="!text-slate-100 font-extrabold mb-2">Registration</Title>
             <Text className="text-white/40">Enter your credentials to join the elite intelligence network</Text>
@@ -79,6 +79,7 @@ const Register = () => {
               <Input
                 prefix={<UserOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Full Name"
+                autoComplete="name"
                 className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
@@ -87,6 +88,7 @@ const Register = () => {
               <Input
                 prefix={<MailOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Email Address"
+                autoComplete="email"
                 className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
@@ -95,6 +97,7 @@ const Register = () => {
               <Input.Password
                 prefix={<LockOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Password"
+                autoComplete="new-password"
                 className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white [&_input]::placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>

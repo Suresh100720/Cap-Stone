@@ -45,7 +45,6 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
         <FieldLabel text="Job Role / Title" />
         <Select
           allowClear
-          showArrow
           className="w-full h-10"
           placeholder="Select Role (e.g. Software Engineer)"
           value={values.role || undefined}
@@ -63,7 +62,6 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
             className="w-full"
             placeholder="Years"
             allowClear
-            showArrow
             value={values.experience || undefined}
             onChange={(v) => onChange('experience', v)}
             disabled={loading}
@@ -76,7 +74,6 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
             className="w-full"
             placeholder="Dept"
             allowClear
-            showArrow
             value={values.department || undefined}
             onChange={(v) => onChange('department', v)}
             disabled={loading}
@@ -89,7 +86,6 @@ const JDForm = ({ values, onChange, onGenerate, loading }) => {
             className="w-full"
             placeholder="Mode"
             allowClear
-            showArrow
             value={values.workMode || undefined}
             onChange={(v) => onChange('workMode', v)}
             disabled={loading}

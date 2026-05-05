@@ -114,7 +114,7 @@ const Search = () => {
               mode="multiple"
               placeholder="All Specializations"
               className="min-w-[200px] custom-select-premium roles-select"
-              bordered={false}
+              variant="borderless"
               value={filters.roles}
               onChange={(vals) => {
                 const nf = { ...filters, roles: vals };
@@ -133,7 +133,7 @@ const Search = () => {
               mode="multiple"
               placeholder="Filter by Skills"
               className="min-w-[200px] custom-select-premium skills-select"
-              bordered={false}
+              variant="borderless"
               value={filters.skills}
               onChange={(vals) => {
                 const nf = { ...filters, skills: vals };
@@ -152,7 +152,7 @@ const Search = () => {
               mode="multiple"
               placeholder="Any Experience"
               className="min-w-[180px] custom-select-premium exp-select"
-              bordered={false}
+              variant="borderless"
               value={filters.experience}
               onChange={(vals) => {
                 const nf = { ...filters, experience: vals };

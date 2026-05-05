@@ -10,32 +10,17 @@ const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#0a0a0c' }}>
+    <Layout className="!min-h-screen !bg-[#0a0a0c]">
       {/* Sidebar Component */}
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
-      <Layout
-        style={{
-          transition: 'all 0.2s',
-          height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: '#f4f7fe', // Light background for the content area
-          overflow: 'hidden'
-        }}
-      >
+      <Layout className="transition-all duration-200 !h-screen flex flex-col !bg-[#f4f7fe] overflow-hidden">
         {/* Navbar Component */}
         <Navbar collapsed={collapsed} setCollapsed={setCollapsed} />
 
         {/* Page Content */}
-        <Content
-          style={{
-            height: 'calc(100vh - 64px)',
-            overflowY: 'auto',
-            padding: '24px'
-          }}
-        >
-          <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+        <Content className="!h-[calc(100vh-64px)] overflow-y-auto p-6 custom-scrollbar">
+          <div className="max-w-[1600px] mx-auto w-full">
             <Outlet />
           </div>
         </Content>

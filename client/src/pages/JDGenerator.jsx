@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Divider, Space, App as AntApp, Button, Popconfirm, Tag, Spin } from 'antd';
+import { Divider, Space, App as AntApp, Button, Popconfirm, Tag, Spin, Drawer } from 'antd';
 import { FileText, Bug, Bot, History, Plus, MessageSquare, Send, Sparkles } from 'lucide-react';
-import { DeleteOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, UserOutlined, HistoryOutlined } from '@ant-design/icons';
 import JDForm from '../components/JDForm';
 import JDPreviewDocument from '../components/JDPreviewDocument';
 import PromptDebugger from '../components/PromptDebugger';
 import axios from 'axios';
 
-// Cloudflare API Endpoint
 const CF_JD_API = '/api/ai/generate-jd';
-
 const INIT = { role: '', experience: '', department: '', skills: [], workMode: '' };
 
 const JDGenerator = () => {
@@ -19,7 +17,7 @@ const JDGenerator = () => {
   const [jd, setJd] = useState(null);
   const [debugData, setDebugData]   = useState(null);
   const [showDebug, setShowDebug]   = useState(false);
-  const resultRef = useRef(null);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const [history, setHistory] = useState(() => {
     try {
@@ -41,6 +39,11 @@ const JDGenerator = () => {
     }
   };
 
+  const loadFromHistory = (h) => {
+    setJd(h);
+    setDrawerVisible(false);
+  };
+
   const handleGenerate = async () => {
     if (!values.role.trim()) { 
       antMessage.warning('Please select a job role'); 
@@ -60,10 +63,9 @@ const JDGenerator = () => {
       const res = await axios.post(CF_JD_API, payload);
       const data = res.data;
       
-      // Merge AI generated content with original form values to ensure all fields (skills, exp) are present
       const newJd = { 
         ...values,
-        title: values.role, // Ensure title matches role if AI returns something else
+        title: values.role,
         ...data, 
         timestamp: Date.now() 
       };
@@ -78,6 +80,13 @@ const JDGenerator = () => {
         user: JSON.stringify(payload, null, 2), 
         raw: data 
       });
+
+      // On mobile, scroll to the result
+      if (window.innerWidth < 1024) {
+          setTimeout(() => {
+              document.getElementById('jd-result-area')?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+      }
     } catch (err) {
       antMessage.error(err.response?.data?.error || 'Generation failed.');
     } finally {
@@ -88,23 +97,21 @@ const JDGenerator = () => {
   const startNew = () => {
     setJd(null);
     setValues(INIT);
+    setDrawerVisible(false);
   };
 
-  return (
-    <div className="flex h-[calc(100vh-64px)] bg-white -m-6 overflow-hidden">
-      
-      {/* Sidebar: Recents */}
-      <div className="w-[280px] bg-slate-50 flex flex-col p-4 border-r border-slate-200">
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
         <Button 
           type="primary" 
           icon={<PlusOutlined />} 
           onClick={startNew}
-          className="!bg-white !text-slate-900 !border-slate-200 !text-left !h-11 !rounded-xl mb-6 flex items-center text-sm font-semibold shadow-sm hover:!bg-slate-100 hover:!border-slate-300 transition-all"
+          className="!bg-white !text-slate-900 !border-slate-200 !text-left !h-11 !rounded-xl mb-6 flex items-center text-sm font-semibold shadow-sm hover:!bg-slate-100 transition-all"
         >
           New Generation
         </Button>
 
-        <div className="flex-1 overflow-y-auto flex flex-col gap-1">
+        <div className="flex-1 overflow-y-auto flex flex-col gap-1 custom-scrollbar">
           <div className="flex justify-between items-center px-3 pb-2.5">
             <p className="text-slate-500 text-[11px] font-bold uppercase tracking-wider m-0">Recent Generations</p>
             {history.length > 0 && (
@@ -127,7 +134,7 @@ const JDGenerator = () => {
           {history.map((h) => (
             <div 
               key={h.timestamp} 
-              onClick={() => setJd(h)}
+              onClick={() => loadFromHistory(h)}
               className={`p-2.5 px-3 rounded-lg cursor-pointer flex justify-between items-center transition-all duration-200 group ${jd?.timestamp === h.timestamp ? 'bg-slate-200' : 'bg-transparent hover:bg-slate-200'}`}
             >
               <div className="flex items-center gap-2.5 overflow-hidden flex-1">
@@ -136,22 +143,49 @@ const JDGenerator = () => {
                   {h.title}
                 </span>
               </div>
-              <Popconfirm title="Delete this generation?" onConfirm={() => deleteHistory(h.timestamp)} onCancel={e => e.stopPropagation()}>
+              <Popconfirm title="Delete?" onConfirm={() => deleteHistory(h.timestamp)} onCancel={e => e.stopPropagation()}>
                 <DeleteOutlined className="text-slate-300 hover:text-red-500 transition-colors text-[13px] p-1" onClick={e => e.stopPropagation()} />
               </Popconfirm>
             </div>
           ))}
         </div>
+    </div>
+  );
+
+  return (
+    <div className="flex h-[calc(100vh-64px)] bg-white -m-6 overflow-hidden relative">
+      
+      {/* Desktop History Sidebar */}
+      <div className="hidden lg:flex w-[280px] bg-slate-50 flex-col p-4 border-r border-slate-200">
+        <SidebarContent />
       </div>
 
-      {/* Main Content: Split View */}
+      {/* Mobile History Drawer */}
+      <Drawer
+        title="Recent Generations"
+        placement="left"
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        width={300}
+        styles={{ body: { padding: '16px', backgroundColor: '#f8fafc' } }}
+      >
+        <SidebarContent />
+      </Drawer>
+
+      {/* Main Content */}
       <div className="flex-1 flex flex-col bg-white">
         
         {/* Header */}
-        <div className="h-16 flex items-center px-6 border-b border-slate-100 justify-between">
+        <div className="h-16 flex items-center px-4 sm:px-6 border-b border-slate-100 justify-between bg-white">
             <div className="flex items-center gap-3">
+                <Button 
+                  type="text" 
+                  icon={<HistoryOutlined />} 
+                  onClick={() => setDrawerVisible(true)}
+                  className="lg:hidden !flex items-center justify-center !text-slate-500"
+                />
                 <Bot size={20} className="text-[#7c3aed]" />
-                <span className="text-slate-900 font-bold text-base tracking-tight">Job Description Architect</span>
+                <span className="text-slate-900 font-bold text-sm sm:text-base tracking-tight">JD Architect</span>
             </div>
             <Space>
                 {debugData && (
@@ -166,53 +200,53 @@ const JDGenerator = () => {
         </div>
 
         {/* Workspace */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             
-            {/* Left: Form */}
-            <div className="w-[400px] border-r border-slate-100 p-8 px-6 overflow-y-auto bg-slate-50">
+            {/* Left: Form (Scrollable) */}
+            <div className="w-full lg:w-[400px] border-r border-slate-100 p-6 sm:p-8 overflow-y-auto bg-slate-50/50 custom-scrollbar">
                 <div className="mb-6">
                     <h3 className="text-slate-900 text-lg font-extrabold mb-1">Job Parameters</h3>
-                    <p className="text-slate-500 text-[13px]">Configure the core details of the position.</p>
+                    <p className="text-slate-500 text-[13px]">Configure the details of the position.</p>
                 </div>
                 <JDForm values={values} onChange={handleChange} onGenerate={handleGenerate} loading={loading} />
             </div>
 
-            {/* Right: Output */}
-            <div className="flex-1 p-8 overflow-y-auto bg-white relative" key={jd?.timestamp || 'empty'}>
+            {/* Right: Output (Scrollable) */}
+            <div id="jd-result-area" className="flex-1 p-6 sm:p-8 overflow-y-auto bg-white relative custom-scrollbar" key={jd?.timestamp || 'empty'}>
                 {loading ? (
-                    <div className="h-full flex flex-col items-center justify-center">
+                    <div className="h-full min-h-[400px] flex flex-col items-center justify-center">
                         <Spin size="large" />
-                        <p className="mt-4 text-slate-500 font-medium animate-pulse">Workers AI is architecting your JD...</p>
+                        <p className="mt-4 text-slate-500 font-medium animate-pulse text-center px-6">Workers AI is architecting your JD...</p>
                     </div>
                 ) : jd ? (
                     <div className="max-w-[800px] mx-auto animate-fade-in">
-                        <div className="flex justify-between items-center mb-6">
-                            <div className="flex items-center gap-2.5">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                            <div className="flex items-center gap-3">
                                 <div className="bg-[#f5f3ff] p-2 rounded-xl">
                                     <FileText size={20} className="text-[#7c3aed]" />
                                 </div>
                                 <div>
-                                    <h2 className="text-slate-900 text-xl font-extrabold m-0">Generated Document</h2>
-                                    <p className="text-slate-500 text-[12px] m-0">Ready for review and export</p>
+                                    <h2 className="text-slate-900 text-lg sm:text-xl font-extrabold m-0">Generated Document</h2>
+                                    <p className="text-slate-500 text-[11px] sm:text-[12px] m-0">Ready for review and export</p>
                                 </div>
                             </div>
-                            <Button onClick={startNew} type="dashed">Reset Workspace</Button>
+                            <Button onClick={startNew} type="dashed" className="w-full sm:w-auto">Reset</Button>
                         </div>
                         <JDPreviewDocument jd={jd} />
                     </div>
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                        <div className="bg-slate-50 rounded-full w-20 h-20 flex items-center justify-center mb-6 border border-dashed border-slate-200 shadow-sm animate-fade-in">
+                    <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-slate-400 p-6">
+                        <div className="bg-slate-50 rounded-full w-20 h-20 flex items-center justify-center mb-6 border border-dashed border-slate-200">
                             <Sparkles size={40} className="text-slate-200" />
                         </div>
                         <h2 className="text-slate-600 text-xl font-bold mb-2 tracking-tight">Ready to Architect</h2>
-                        <p className="max-w-[300px] text-center text-sm leading-relaxed">Fill in the parameters on the left to generate a professional job description using AI.</p>
+                        <p className="max-w-[300px] text-center text-sm leading-relaxed">Fill in the parameters above to generate a professional job description.</p>
                     </div>
                 )}
 
                 {/* Debug Overlay */}
                 {showDebug && debugData && (
-                    <div className="absolute top-8 left-8 right-8 z-50 shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
+                    <div className="absolute top-4 sm:top-8 left-4 sm:left-8 right-4 sm:right-8 z-50 shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
                         <PromptDebugger systemPrompt={debugData.system} userPrompt={debugData.user} rawResponse={debugData.raw} />
                     </div>
                 )}

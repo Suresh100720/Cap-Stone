@@ -130,18 +130,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
   }, [onEdit, onDelete, isStatTable, isJobType]);
 
   const colDefs = useMemo(() => {
-    const checkboxCol = {
-      headerName: '',
-      field: 'checkbox',
-      width: 50,
-      checkboxSelection: true,
-      headerCheckboxSelection: true,
-      pinned: "left",
-      lockPinned: true,
-      suppressHeaderMenuButton: true,
-      cellClass: "flex items-center justify-center"
-    };
-
+    // Note: checkboxSelection and headerCheckboxSelection are now configured via the rowSelection prop in AG Grid v32+
     const actionsCol = {
       headerName: "Actions",
       cellRenderer: ActionsCellRenderer,
@@ -155,7 +144,6 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
 
     if (isJobType) {
       return [
-        checkboxCol,
         { field: 'title', headerName: 'Job Title', flex: 1.5, cellClass: "font-semibold" },
         { field: 'department', flex: 1 },
         { field: 'location', flex: 1 },
@@ -169,7 +157,6 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
     }
 
     let cols = [
-      checkboxCol,
       {
         field: "name",
         headerName: "Name",
@@ -224,7 +211,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
                 <Dropdown
                   trigger={['click']}
                   placement="bottom"
-                  dropdownRender={() => (
+                  popupRender={() => (
                     <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-100 max-w-[280px] flex flex-wrap gap-1.5">
                       <div className="w-full mb-1 pb-1 border-b border-slate-100">
                         <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-tight">Full Skill Set</span>
@@ -266,6 +253,14 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
     if (onSelectionChanged) onSelectionChanged(event);
   }, [onSelectionChanged]);
 
+  const rowSelection = useMemo(() => ({
+    mode: 'multiRow',
+    headerCheckbox: true,
+    checkboxes: true,
+    enableClickSelection: false,
+    enableSelectionWithoutKeys: true
+  }), []);
+
   return (
     <div className="w-full">
       <div className="w-full">
@@ -278,7 +273,6 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
             sortable: true,
             filter: false,
             resizable: true,
-            suppressMenu: true,
             suppressHeaderMenuButton: true
           }}
           pagination={true}
@@ -290,9 +284,7 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
           onColumnResized={onColumnChanged}
           onColumnVisible={onColumnChanged}
           onSelectionChanged={handleGridSelectionChanged}
-          rowSelection='multiple'
-          rowMultiSelectWithClick={false}
-          suppressRowClickSelection={true}
+          rowSelection={rowSelection}
           rowHeight={52}
           headerHeight={48}
           sideBar={{

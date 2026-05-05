@@ -226,7 +226,6 @@ const Jobs = () => {
               <Col xs={24} md={12} lg={8} key={job._id}>
                 <Card
                   hoverable
-                  bordered={true}
                   className="!bg-transparent !rounded-[24px] !border-slate-100 !overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                   styles={{ body: { padding: '24px' } }}
                   actions={[

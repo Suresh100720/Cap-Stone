@@ -158,7 +158,7 @@ const Dashboard = () => {
   }));
 
   return (
-    <div className="pb-10 bg-[#f8fafc] min-h-[calc(100vh-64px)] -mx-6 -mt-6 p-6">
+    <div className="pb-10 bg-[#f8fafc] min-h-[calc(100vh-64px)] p-4 sm:p-6 lg:p-8">
       {/* Stat Cards Row */}
       <Row gutter={[24, 24]} className="mb-8">
         <Col xs={24} sm={12} xl={6}>

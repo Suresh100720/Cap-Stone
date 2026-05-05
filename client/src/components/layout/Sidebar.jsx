@@ -51,90 +51,65 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       onBreakpoint={(broken) => {
         if (broken) setCollapsed(true);
       }}
-      style={{
-        minHeight: '100vh',
-        background: '#0a0a0c',
-        zIndex: 100,
-        boxShadow: '4px 0 24px rgba(0,0,0,0.5)'
-      }}
+      className="!min-h-screen !bg-[#0a0a0c] z-[100] shadow-[4px_0_24px_rgba(0,0,0,0.5)] border-r border-white/5"
     >
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0 }}>
+      <div className="flex flex-col h-screen sticky top-0">
         {/* Logo Section */}
-        <div style={{ 
-          height: 64, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: collapsed ? 'center' : 'space-between', 
-          padding: collapsed ? '0' : '0 24px', 
-          marginBottom: '20px' 
-        }}>
+        <div className={`h-16 flex items-center mb-5 ${collapsed ? 'justify-center px-0' : 'justify-between px-6'}`}>
           {!collapsed && (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{
-                width: 32,
-                height: 32,
-                background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
-                borderRadius: '10px',
-                marginRight: 12,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 0 15px rgba(124, 58, 237, 0.4)'
-              }}>
-                <span style={{ color: 'white', fontWeight: 'bold' }}>T</span>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#7c3aed] to-[#ec4899] rounded-lg mr-3 flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.4)]">
+                <span className="text-white font-black text-sm">R</span>
               </div>
-              <h2 style={{ color: 'white', margin: 0, fontSize: '18px', fontWeight: '900', letterSpacing: '0.5px' }}>Admin</h2>
+              <h2 className="text-white m-0 text-lg font-black tracking-tight">Admin</h2>
             </div>
           )}
-          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            className: 'trigger',
-            style: { 
-              fontSize: '18px', 
-              cursor: 'pointer', 
-              color: '#7c3aed',
-              transition: 'all 0.3s'
-            },
-            onClick: () => setCollapsed(!collapsed),
-          })}
+          <div 
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-violet-500 text-lg cursor-pointer hover:text-violet-400 transition-all p-2 rounded-lg hover:bg-white/5"
+          >
+            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          </div>
         </div>
 
         {/* Navigation Menu */}
-        <div style={{ flex: 1 }}>
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           <Menu
             theme="dark"
             mode="inline"
             selectedKeys={[location.pathname]}
             items={menuItems}
             onClick={({ key }) => navigate(key)}
-            style={{
-              background: 'transparent',
-              border: 'none'
-            }}
+            className="!bg-transparent border-none px-2"
           />
         </div>
 
         {/* User Info & Logout Section */}
-        <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.05)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+        <div className="p-4 border-t border-white/5 bg-white/[0.02]">
           {!collapsed && (
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px', padding: '0 8px' }}>
+            <div className="flex items-center mb-4 px-2">
               <Avatar
                 src={user?.photoURL}
                 icon={<UserOutlined />}
-                style={{ backgroundColor: '#7c3aed', marginRight: '12px', border: '2px solid rgba(255,255,255,0.1)' }}
+                className="!bg-violet-600 !mr-3 !border-2 !border-white/10 shrink-0"
               />
-              <div style={{ overflow: 'hidden' }}>
-                <Text style={{ color: 'white', display: 'block', fontSize: '14px', fontWeight: 600 }} ellipsis>
+              <div className="min-w-0">
+                <Text className="!text-white !block !text-sm !font-semibold !leading-none mb-1" ellipsis>
                   {user?.displayName || user?.email?.split('@')[0]}
                 </Text>
-                <Text style={{ color: 'rgba(255,255,255,0.4)', display: 'block', fontSize: '11px' }} ellipsis>
+                <Text className="!text-white/40 !block !text-[11px] !leading-none" ellipsis>
                   {user?.email}
                 </Text>
               </div>
             </div>
           )}
           {collapsed && (
-            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-              <Avatar src={user?.photoURL} icon={<UserOutlined />} style={{ backgroundColor: '#7c3aed' }} />
+            <div className="text-center mb-4">
+              <Avatar 
+                src={user?.photoURL} 
+                icon={<UserOutlined />} 
+                className="!bg-violet-600 !border-2 !border-white/10"
+              />
             </div>
           )}
 
@@ -143,12 +118,12 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             mode="inline"
             selectable={false}
             onClick={handleLogout}
-            style={{ background: 'transparent', border: 'none' }}
+            className="!bg-transparent border-none px-2"
             items={[
               {
                 key: 'logout',
-                icon: <LogoutOutlined style={{ color: '#f43f5e' }} />,
-                label: <span style={{ color: '#f43f5e', fontWeight: 600 }}>Logout</span>,
+                icon: <LogoutOutlined className="!text-rose-500" />,
+                label: <span className="text-rose-500 font-semibold">Logout</span>,
               }
             ]}
           />
@@ -163,17 +138,18 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             color: #a78bfa !important;
             margin: 4px 0 !important;
             width: 100% !important;
-            border-radius: 0 !important;
+            border-radius: 4px !important;
           }
           .ant-menu-dark .ant-menu-item {
-            height: 50px !important;
-            line-height: 50px !important;
+            height: 48px !important;
+            line-height: 48px !important;
             margin: 4px 0 !important;
             transition: all 0.3s !important;
+            border-radius: 8px !important;
           }
           .ant-menu-dark .ant-menu-item:hover {
             color: #a78bfa !important;
-            background: rgba(255,255,255,0.02) !important;
+            background: rgba(255,255,255,0.03) !important;
           }
           .ant-menu-item .anticon {
             font-size: 18px !important;
