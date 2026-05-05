@@ -193,8 +193,6 @@ Mini Recruitment CRM/
 │       └── utils/
 │           ├── aiClient.js      # CF Workers AI connector
 │           └── r2Client.js      # CF R2 connector
-├── prompts/                     # AI Instruction templates (.txt)
-├── elasticsearch/               # Index setup scripts
 ├── .env                         # Secrets & API Keys
 ├── wrangler.toml                # Cloudflare deployment config
 └── package.json                 # Root dependencies
