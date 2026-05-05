@@ -60,7 +60,7 @@ const Login = () => {
         <Title level={1} className="!text-slate-100 font-black text-[48px] !leading-[1.1] mb-6">
           The future of <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">intelligent</span> talent acquisition.
         </Title>
-        <Text className="text-white/40 text-lg max-w-[480px] leading-relaxed">
+        <Text className="!text-slate-200 text-lg max-w-[480px] leading-relaxed block">
           Harness the power of Cloudflare AI to streamline your recruitment pipeline with precision and speed.
         </Text>
       </div>
@@ -70,7 +70,7 @@ const Login = () => {
         <div className="w-full max-w-[420px] bg-white/[0.02] p-6 sm:p-12 rounded-[24px] sm:rounded-[32px] border border-white/5 backdrop-blur-[20px] shadow-[0_24px_48px_rgba(0,0,0,0.4)]">
           <div className="mb-10">
             <Title level={2} className="!text-slate-100 font-extrabold mb-2">Identity Portal</Title>
-            <Text className="text-white/40">Please authenticate to access the intelligence suite</Text>
+            <Text className="!text-slate-400 text-[15px] block mt-1">Enter your credentials to access the intelligence grid</Text>
           </div>
 
           <Form name="login" layout="vertical" onFinish={onFinish} requiredMark={false}>
@@ -79,7 +79,7 @@ const Login = () => {
                 prefix={<MailOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Email Address"
                 autoComplete="email"
-                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
+                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/50 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
 
@@ -88,7 +88,7 @@ const Login = () => {
                 prefix={<LockOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Password"
                 autoComplete="current-password"
-                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white [&_input]::placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
+                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white [&_input]::placeholder:!text-white/50 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
 

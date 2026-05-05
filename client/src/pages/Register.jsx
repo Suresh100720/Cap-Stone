@@ -51,7 +51,7 @@ const Register = () => {
       <div className="absolute bottom-[10%] left-[10%] w-[40%] h-[40%] bg-[radial-gradient(circle,_rgba(34,211,238,0.12)_0%,_transparent_70%)] blur-[60px]" />
 
       {/* Left Side: Branding */}
-      <div className="hidden md:flex flex-1 flex-col justify-center p-20 z-10 border-r border-white/5">
+      <div className="md:flex flex-1 flex-col justify-center p-20 z-10 border-r border-white/5">
         <Space align="center" className="mb-10">
           <div className="w-12 h-12 bg-gradient-to-br from-[#7c3aed] to-[#4f46e5] rounded-xl flex items-center justify-center text-white text-2xl shadow-[0_8px_16px_rgba(124,58,237,0.4)]">
             <ThunderboltOutlined />
@@ -61,7 +61,7 @@ const Register = () => {
         <Title level={1} className="!text-slate-100 font-black text-[48px] !leading-[1.1] mb-6">
           Join the <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">next generation</span> of recruiters.
         </Title>
-        <Text className="text-white/40 text-lg max-w-[480px] leading-relaxed">
+        <Text className="!text-slate-200 text-lg max-w-[480px] leading-relaxed block">
           Create your account to unlock AI-powered candidate summaries, job architects, and semantic talent search.
         </Text>
       </div>
@@ -71,7 +71,7 @@ const Register = () => {
         <div className="w-full max-w-[420px] bg-white/[0.02] p-6 sm:p-12 rounded-[24px] sm:rounded-[32px] border border-white/5 backdrop-blur-[20px] shadow-[0_24px_48px_rgba(0,0,0,0.4)]">
           <div className="mb-10">
             <Title level={2} className="!text-slate-100 font-extrabold mb-2">Registration</Title>
-            <Text className="text-white/40">Enter your credentials to join the elite intelligence network</Text>
+            <Text className="!text-slate-400 text-[15px] block mt-1">Enter your credentials to join the elite intelligence network</Text>
           </div>
 
           <Form name="register" layout="vertical" onFinish={onFinish} requiredMark={false}>
@@ -80,7 +80,7 @@ const Register = () => {
                 prefix={<UserOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Full Name"
                 autoComplete="name"
-                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
+                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/50 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
 
@@ -89,7 +89,7 @@ const Register = () => {
                 prefix={<MailOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Email Address"
                 autoComplete="email"
-                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
+                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white placeholder:!text-white/50 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
 
@@ -98,7 +98,7 @@ const Register = () => {
                 prefix={<LockOutlined className="text-[#7c3aed] mr-3" />}
                 placeholder="Password"
                 autoComplete="new-password"
-                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white [&_input]::placeholder:!text-white/30 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
+                className="!h-[54px] !bg-white/[0.03] !border-white/10 !rounded-[14px] !text-white [&_input]::placeholder:!text-white/50 hover:!border-white/20 focus:!border-[#7c3aed] transition-all"
               />
             </Form.Item>
 

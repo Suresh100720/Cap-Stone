@@ -26,7 +26,7 @@ const Dashboard = () => {
   const [selectedRows, setSelectedRows] = useState([]);
 
   // Modal states
-  const [statModal, setStatModal] = useState({ visible: false, title: '', data: [], type: 'candidate' });
+  const [statModal, setStatModal] = useState({ visible: false, title: '', category: null, type: 'candidate' });
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -58,30 +58,34 @@ const Dashboard = () => {
   }, []);
 
   const handleStatClick = (category) => {
-    let filtered = [];
     let title = '';
     let type = 'candidate';
 
     if (category === 'total_candidates') {
-      filtered = candidates;
       title = 'Total Candidates';
       type = 'candidate';
     } else if (category === 'active') {
-      filtered = candidates.filter(c => c.status === 'Active');
       title = 'Active Candidates';
       type = 'candidate';
     } else if (category === 'inactive') {
-      filtered = candidates.filter(c => c.status === 'Inactive');
       title = 'Inactive Candidates';
       type = 'candidate';
     } else if (category === 'total_jobs') {
-      filtered = jobs;
       title = 'Total Job Listings';
       type = 'job';
     }
 
-    setStatModal({ visible: true, title, data: filtered, type });
+    setStatModal({ visible: true, title, category, type });
     setSelectedStatRows([]);
+  };
+
+  const getModalData = () => {
+    const { category } = statModal;
+    if (category === 'total_candidates') return candidates;
+    if (category === 'active') return candidates.filter(c => c.status === 'Active' || c.status === 'active');
+    if (category === 'inactive') return candidates.filter(c => c.status === 'Inactive' || c.status === 'inactive');
+    if (category === 'total_jobs') return jobs;
+    return [];
   };
 
   const handleFinish = async (values) => {
@@ -110,13 +114,17 @@ const Dashboard = () => {
   };
 
   const handleDelete = (id) => {
+    const isJob = statModal.visible && statModal.type === 'job';
+    const typeLabel = isJob ? 'job' : 'candidate';
+    const url = isJob ? `/jobs/${id}` : `/candidates/${id}`;
+
     Modal.confirm({
       title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this candidate?',
+      content: `Are you sure you want to delete this ${typeLabel}?`,
       onOk: async () => {
         try {
-          await axiosInstance.delete(`/candidates/${id}`);
-          message.success('Candidate deleted');
+          await axiosInstance.delete(url);
+          message.success(`${typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1)} deleted`);
           fetchData();
         } catch (err) {
           message.error('Delete failed');
@@ -224,10 +232,11 @@ const Dashboard = () => {
                         content: 'This action cannot be undone.',
                         onOk: async () => {
                           try {
-                            await Promise.all(selectedStatRows.map(row => axiosInstance.delete(`/candidates/${row._id || row.id}`)));
+                            const isJob = statModal.type === 'job';
+                            const urlPrefix = isJob ? '/jobs' : '/candidates';
+                            await Promise.all(selectedStatRows.map(row => axiosInstance.delete(`${urlPrefix}/${row._id || row.id}`)));
                             message.success('Selected items deleted');
                             fetchData();
-                            setStatModal(prev => ({ ...prev, visible: false }));
                             setSelectedStatRows([]);
                           } catch (err) {
                             message.error('Failed to delete some items');
@@ -255,8 +264,8 @@ const Dashboard = () => {
       >
         <CandidateTable 
           ref={statGridRef}
-          key={statModal.type + statModal.visible}
-          rowData={statModal.data} 
+          key={statModal.type + statModal.visible + candidates.length + jobs.length}
+          rowData={getModalData()} 
           onEdit={handleEdit} 
           onDelete={handleDelete} 
           type={statModal.type} 

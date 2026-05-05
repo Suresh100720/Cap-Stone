@@ -12,7 +12,7 @@ import {
 
 const { Title } = Typography;
 
-const LS_KEY = "aggridCandidateColumnState";
+const LS_KEY_PREFIX = "aggridTableState_";
 const AVATAR_COLORS = ["#6366f1", "#8b5cf6", "#0ea5e9", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6"];
 const avatarColor = (name = "") => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length] || "#94a3b8";
 
@@ -69,10 +69,12 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
 
   const isJobType = type === 'job';
 
+  const lsKey = LS_KEY_PREFIX + type;
+
   /* ── Restore Column State ── */
   const onGridReady = useCallback((params) => {
     gridRef.current = params;
-    const saved = localStorage.getItem(LS_KEY);
+    const saved = localStorage.getItem(lsKey);
     if (saved && params.api) {
       try {
         const columnState = JSON.parse(saved);
@@ -83,14 +85,14 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
     } else if (params.api) {
       params.api.sizeColumnsToFit();
     }
-  }, []);
+  }, [lsKey]);
 
   /* ── Save Column State ── */
   const onColumnChanged = useCallback(() => {
     if (!gridRef.current?.api) return;
     const columnState = gridRef.current.api.getColumnState();
-    localStorage.setItem(LS_KEY, JSON.stringify(columnState));
-  }, []);
+    localStorage.setItem(lsKey, JSON.stringify(columnState));
+  }, [lsKey]);
 
   /* ── Actions Cell Renderer ── */
   const ActionsCellRenderer = useCallback(({ data }) => {
@@ -144,13 +146,21 @@ const CandidateTable = forwardRef(({ rowData, onEdit, onDelete, onSelectionChang
 
     if (isJobType) {
       return [
-        { field: 'title', headerName: 'Job Title', flex: 1.5, cellClass: "font-semibold" },
-        { field: 'department', flex: 1 },
-        { field: 'location', flex: 1 },
+        { 
+          field: 'title', 
+          headerName: 'Job Title', 
+          flex: 1.5, 
+          cellClass: "font-semibold text-slate-800",
+          minWidth: 180
+        },
+        { field: 'department', flex: 1, minWidth: 120 },
+        { field: 'location', flex: 1, minWidth: 140 },
         {
           field: 'status',
+          headerName: 'Status',
           flex: 1,
-          cellRenderer: (p) => <StatusBadge status={p.value} />
+          minWidth: 120,
+          cellRenderer: (p) => <div className="flex items-center h-full"><StatusBadge status={p.value} /></div>
         },
         actionsCol
       ];

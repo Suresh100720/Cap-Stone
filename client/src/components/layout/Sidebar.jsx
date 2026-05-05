@@ -64,7 +64,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
               <h2 className="text-white m-0 text-lg font-black tracking-tight">Admin</h2>
             </div>
           )}
-          <div 
+          <div
             onClick={() => setCollapsed(!collapsed)}
             className="text-violet-500 text-lg cursor-pointer hover:text-violet-400 transition-all p-2 rounded-lg hover:bg-white/5"
           >
@@ -105,9 +105,9 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           )}
           {collapsed && (
             <div className="text-center mb-4">
-              <Avatar 
-                src={user?.photoURL} 
-                icon={<UserOutlined />} 
+              <Avatar
+                src={user?.photoURL}
+                icon={<UserOutlined />}
                 className="!bg-violet-600 !border-2 !border-white/10"
               />
             </div>
@@ -130,32 +130,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         </div>
       </div>
 
-      <style>
-        {`
-          .ant-menu-dark.ant-menu-inline .ant-menu-item-selected {
-            background: linear-gradient(90deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0) 100%) !important;
-            border-left: 3px solid #7c3aed !important;
-            color: #a78bfa !important;
-            margin: 4px 0 !important;
-            width: 100% !important;
-            border-radius: 4px !important;
-          }
-          .ant-menu-dark .ant-menu-item {
-            height: 48px !important;
-            line-height: 48px !important;
-            margin: 4px 0 !important;
-            transition: all 0.3s !important;
-            border-radius: 8px !important;
-          }
-          .ant-menu-dark .ant-menu-item:hover {
-            color: #a78bfa !important;
-            background: rgba(255,255,255,0.03) !important;
-          }
-          .ant-menu-item .anticon {
-            font-size: 18px !important;
-          }
-        `}
-      </style>
+
     </Sider>
   );
 };
